@@ -23,6 +23,102 @@
   ==============================================================================
 */
 
+// FIXME: This hack is quite kludgy and shouldn't be necessary. But it's VERY useful.
+// #define NASTY_OPENGL_DEBUG_HACK
+
+#ifdef NASTY_OPENGL_DEBUG_HACK
+static void APIENTRY debugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
+{
+    // Some debug messages are just annoying informational messages
+    switch (id)
+    {
+    case 131185: // glBufferData
+        return;
+    }
+
+    printf("Message: %s\n", message);
+    printf("Source: ");
+
+    switch (source)
+    {
+    case GL_DEBUG_SOURCE_API:
+        printf("API");
+        break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        printf("Window System");
+        break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+        printf("Shader Compiler");
+        break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:
+        printf("Third Party");
+        break;
+    case GL_DEBUG_SOURCE_APPLICATION:
+        printf("Application");
+        break;
+    case GL_DEBUG_SOURCE_OTHER:
+        printf("Other");
+        break;
+    }
+
+    printf("\n");
+    printf("Type: ");
+
+    switch (type)
+    {
+    case GL_DEBUG_TYPE_ERROR:
+        printf("Error");
+        break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        printf("Deprecated Behavior");
+        break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        printf("Undefined Behavior");
+        break;
+    case GL_DEBUG_TYPE_PORTABILITY:
+        printf("Portability");
+        break;
+    case GL_DEBUG_TYPE_PERFORMANCE:
+        printf("Performance");
+        break;
+    case GL_DEBUG_TYPE_MARKER:
+        printf("Marker");
+        break;
+    case GL_DEBUG_TYPE_PUSH_GROUP:
+        printf("Push Group");
+        break;
+    case GL_DEBUG_TYPE_POP_GROUP:
+        printf("Pop Group");
+        break;
+    case GL_DEBUG_TYPE_OTHER:
+        printf("Other");
+        break;
+    }
+
+    printf("\n");
+    printf("ID: %d\n", id);
+    printf("Severity: ");
+
+    switch (severity)
+    {
+    case GL_DEBUG_SEVERITY_HIGH:
+        printf("High");
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        printf("Medium");
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        printf("Low");
+        break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        printf("Notification");
+        break;
+    }
+
+    printf("\n\n");
+}
+#endif
+
 namespace juce
 {
 
@@ -171,7 +267,12 @@ public:
         int attribs[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
             GLX_CONTEXT_MINOR_VERSION_ARB, 2,
-            GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+
+#ifdef NASTY_OPENGL_DEBUG_HACK
+            GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB,
+#endif
+
+            GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
             0
         };
 
@@ -181,6 +282,21 @@ public:
         renderContext = createContextAttribs (display, *fbConfig, (GLXContext) contextToShareWith, GL_TRUE, attribs);
         c.makeActive();
         context = &c;
+
+#ifdef NASTY_OPENGL_DEBUG_HACK
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+        typedef void(*callbackFunc)(GLDEBUGPROC, const void *);
+        auto debugCallback = (callbackFunc)
+            OpenGLHelpers::getExtensionFunction("glDebugMessageCallbackARB");
+        debugCallback(debugMessage, NULL);
+
+        typedef void(*controlFunc)(GLenum, GLenum, GLenum, GLsizei, const GLuint *, GLboolean);
+        auto controlFunction = (controlFunc)
+            OpenGLHelpers::getExtensionFunction("glDebugMessageControl");
+        controlFunction(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
+#endif
 
         return true;
     }
