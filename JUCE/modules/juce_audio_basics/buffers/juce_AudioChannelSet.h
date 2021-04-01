@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -49,7 +49,7 @@ public:
     /** Creates an empty channel set.
         You can call addChannel to add channels to the set.
     */
-    AudioChannelSet() noexcept  {}
+    AudioChannelSet() = default;
 
     /** Creates a zero-channel set which can be used to indicate that a
         bus is disabled. */
@@ -208,6 +208,18 @@ public:
     */
     static AudioChannelSet JUCE_CALLTYPE create7point1point2();
 
+    /** Creates a set for Dolby Atmos 7.0.4 surround setup (left, right, centre, leftSurroundSide, rightSurroundSide, leftSurroundRear, rightSurroundRear, topFrontLeft, topFrontRight, topRearLeft, topRearRight).
+
+        Is equivalent to: n/a (VST), n/a (AAX), n/a (CoreAudio)
+    */
+    static AudioChannelSet JUCE_CALLTYPE create7point0point4();
+
+    /** Creates a set for Dolby Atmos 7.1.4 surround setup (left, right, centre, leftSurroundSide, rightSurroundSide, leftSurroundRear, rightSurroundRear, LFE, topFrontLeft, topFrontRight, topRearLeft, topRearRight).
+
+        Is equivalent to: k71_4 (VST), n/a (AAX), n/a (CoreAudio)
+    */
+    static AudioChannelSet JUCE_CALLTYPE create7point1point4();
+
 
     //==============================================================================
     /** Creates a set for quadraphonic surround setup (left, right, leftSurround, rightSurround)
@@ -365,7 +377,21 @@ public:
         ambisonicZ          = ambisonicACN2, /**< Same as first-order ambisonic channel number 2. */
 
         //==============================================================================
-        discreteChannel0    = 64  /**< Non-typed individual channels are indexed upwards from this value. */
+        bottomFrontLeft     = 62, /**< Bottom Front Left (Bfl)   */
+        bottomFrontCentre   = 63, /**< Bottom Front Centre (Bfc) */
+        bottomFrontRight    = 64, /**< Bottom Front Right (Bfr)  */
+
+        proximityLeft       = 65, /**< Proximity Left (Pl)  */
+        proximityRight      = 66, /**< Proximity Right (Pr) */
+
+        bottomSideLeft      = 67, /**< Bottom Side Left (Bsl)   */
+        bottomSideRight     = 68, /**< Bottom Side Right (Bsr)  */
+        bottomRearLeft      = 69, /**< Bottom Rear Left (Brl)  */
+        bottomRearCentre    = 70, /**< Bottom Rear Center (Brc)  */
+        bottomRearRight     = 71, /**< Bottom Rear Right (Brr)  */
+
+        //==============================================================================
+        discreteChannel0    = 128  /**< Non-typed individual channels are indexed upwards from this value. */
     };
 
     /** Returns the name of a given channel type. For example, this method may return "Surround Left". */

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -109,11 +108,15 @@ void ComponentPeer::handlePaint (LowLevelGraphicsContext& contextToPaintTo)
         g.addTransform (component.getTransform());
 
     auto peerBounds = getBounds();
+    auto componentBounds = component.getLocalBounds();
 
-    if (peerBounds.getWidth() != component.getWidth() || peerBounds.getHeight() != component.getHeight())
+    if (component.isTransformed())
+        componentBounds = componentBounds.transformedBy (component.getTransform());
+
+    if (peerBounds.getWidth() != componentBounds.getWidth() || peerBounds.getHeight() != componentBounds.getHeight())
         // Tweak the scaling so that the component's integer size exactly aligns with the peer's scaled size
-        g.addTransform (AffineTransform::scale (peerBounds.getWidth()  / (float) component.getWidth(),
-                                                peerBounds.getHeight() / (float) component.getHeight()));
+        g.addTransform (AffineTransform::scale ((float) peerBounds.getWidth()  / (float) componentBounds.getWidth(),
+                                                (float) peerBounds.getHeight() / (float) componentBounds.getHeight()));
 
   #if JUCE_ENABLE_REPAINT_DEBUGGING
    #ifdef JUCE_IS_REPAINT_DEBUGGING_ACTIVE
@@ -399,6 +402,16 @@ Rectangle<int> ComponentPeer::globalToLocal (const Rectangle<int>& screenPositio
     return screenPosition.withPosition (globalToLocal (screenPosition.getPosition()));
 }
 
+Rectangle<float> ComponentPeer::localToGlobal (const Rectangle<float>& relativePosition)
+{
+    return relativePosition.withPosition (localToGlobal (relativePosition.getPosition()));
+}
+
+Rectangle<float> ComponentPeer::globalToLocal (const Rectangle<float>& screenPosition)
+{
+    return screenPosition.withPosition (globalToLocal (screenPosition.getPosition()));
+}
+
 Rectangle<int> ComponentPeer::getAreaCoveredBy (Component& subComponent) const
 {
     return ScalingHelpers::scaledScreenPosToUnscaled
@@ -461,7 +474,7 @@ bool ComponentPeer::handleDragMove (const ComponentPeer::DragInfo& info)
             if (DragHelpers::isSuitableTarget (info, newTarget))
             {
                 dragAndDropTargetComponent = newTarget;
-                auto pos = newTarget->getLocalPoint (&component, info.position);
+                auto pos = newTarget->getLocalPoint (&component, info.position * newTarget->getTotalPixelScaling());
 
                 if (DragHelpers::isFileDrag (info))
                     dynamic_cast<FileDragAndDropTarget*> (newTarget)->fileDragEnter (info.files, pos.x, pos.y);
@@ -478,7 +491,7 @@ bool ComponentPeer::handleDragMove (const ComponentPeer::DragInfo& info)
     if (! DragHelpers::isSuitableTarget (info, newTarget))
         return false;
 
-    auto pos = newTarget->getLocalPoint (&component, info.position);
+    auto pos = newTarget->getLocalPoint (&component, info.position * newTarget->getTotalPixelScaling());
 
     if (DragHelpers::isFileDrag (info))
         dynamic_cast<FileDragAndDropTarget*> (newTarget)->fileDragMove (info.files, pos.x, pos.y);
@@ -571,5 +584,10 @@ ModifierKeys ComponentPeer::getCurrentModifiersRealtime() noexcept
     return ModifierKeys::currentModifiers;
 }
 
+//==============================================================================
+void ComponentPeer::forceDisplayUpdate()
+{
+    Desktop::getInstance().displays->refresh();
+}
 
 } // namespace juce

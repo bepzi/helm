@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -59,17 +58,20 @@ namespace IIR
         */
         using NumericType = typename SampleTypeHelpers::ElementType<SampleType>::Type;
 
+        /** A typedef for a ref-counted pointer to the coefficients object */
+        using CoefficientsPtr = typename Coefficients<NumericType>::Ptr;
+
         //==============================================================================
         /** Creates a filter.
 
             Initially the filter is inactive, so will have no effect on samples that
-            you process with it. Use the setCoefficients() method to turn it into the
-            type of filter needed.
+            you process with it. You can modify the coefficients member to turn it into
+            the type of filter needed.
         */
         Filter();
 
         /** Creates a filter with a given set of coefficients. */
-        Filter (Coefficients<NumericType>* coefficientsToUse);
+        Filter (CoefficientsPtr coefficientsToUse);
 
         Filter (const Filter&) = default;
         Filter (Filter&&) = default;
@@ -77,13 +79,13 @@ namespace IIR
         Filter& operator= (Filter&&) = default;
 
         //==============================================================================
-        /** The coefficients of the IIR filter. It's up to the called to ensure that
+        /** The coefficients of the IIR filter. It's up to the caller to ensure that
             these coefficients are modified in a thread-safe way.
 
             If you change the order of the coefficients then you must call reset after
             modifying them.
         */
-        typename Coefficients<NumericType>::Ptr coefficients;
+        CoefficientsPtr coefficients;
 
         //==============================================================================
         /** Resets the filter's processing pipeline, ready to start a new stream of data.
@@ -91,7 +93,7 @@ namespace IIR
             Note that this clears the processing state, but the type of filter and
             its coefficients aren't changed.
         */
-        void reset()            { reset (SampleType {0}); }
+        void reset()    { reset (SampleType {0}); }
 
         /** Resets the filter's processing pipeline to a specific value.
             @see reset
@@ -102,7 +104,7 @@ namespace IIR
         /** Called before processing starts. */
         void prepare (const ProcessSpec&) noexcept;
 
-        /** Processes as a block of samples */
+        /** Processes a block of samples */
         template <typename ProcessContext>
         void process (const ProcessContext& context) noexcept
         {
@@ -110,6 +112,10 @@ namespace IIR
                 processInternal<ProcessContext, true> (context);
             else
                 processInternal<ProcessContext, false> (context);
+
+           #if JUCE_SNAP_TO_ZERO
+            snapToZero();
+           #endif
         }
 
         /** Processes a single sample, without any locking.
@@ -131,7 +137,7 @@ namespace IIR
         //==============================================================================
         void check();
 
-        /** Processes as a block of samples */
+        /** Processes a block of samples */
         template <typename ProcessContext, bool isBypassed>
         void processInternal (const ProcessContext& context) noexcept;
 

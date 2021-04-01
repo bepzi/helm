@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -40,10 +40,10 @@ namespace juce
 template <typename Type>
 struct Atomic  final
 {
-    typedef typename AtomicHelpers::DiffTypeHelper<Type>::Type DiffType;
+    using DiffType = typename AtomicHelpers::DiffTypeHelper<Type>::Type;
 
     /** Creates a new value, initialised to zero. */
-    Atomic() noexcept  : value (0) {}
+    Atomic() noexcept  : value (Type()) {}
 
     /** Creates a new value, with a given initial value. */
     Atomic (Type initialValue) noexcept  : value (initialValue) {}

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -157,8 +156,8 @@ const char* const WavAudioFormat::tracktionLoopInfo    = "tracktion loop info";
 //==============================================================================
 namespace WavFileHelpers
 {
-    JUCE_CONSTEXPR inline int chunkName (const char* name) noexcept         { return (int) ByteOrder::littleEndianInt (name); }
-    JUCE_CONSTEXPR inline size_t roundUpSize (size_t sz) noexcept           { return (sz + 3) & ~3u; }
+    constexpr inline int chunkName (const char* name) noexcept         { return (int) ByteOrder::littleEndianInt (name); }
+    constexpr inline size_t roundUpSize (size_t sz) noexcept           { return (sz + 3) & ~3u; }
 
     #if JUCE_MSVC
      #pragma pack (push, 1)
@@ -843,26 +842,47 @@ namespace WavFileHelpers
             return out.getMemoryBlock();
         }
     };
+    
+    //==============================================================================
+    struct Clm_Chunk
+    {
+        static MemoryBlock createFrom (const StringPairArray& values)
+        {
+            MemoryOutputStream out;
+            auto s = values["clm "];
+
+            if (s.isNotEmpty())
+            {
+                out.writeString (s);
+
+                if ((out.getDataSize() & 1) != 0)
+                  out.writeByte(0);
+            }
+
+            return out.getMemoryBlock();
+        }
+    };
 
     //==============================================================================
     namespace AXMLChunk
     {
         static void addToMetadata (StringPairArray& destValues, const String& source)
         {
-            std::unique_ptr<XmlElement> xml (XmlDocument::parse (source));
-
-            if (xml != nullptr && xml->hasTagName ("ebucore:ebuCoreMain"))
+            if (auto xml = parseXML (source))
             {
-                if (auto* xml2 = xml->getChildByName ("ebucore:coreMetadata"))
+                if (xml->hasTagName ("ebucore:ebuCoreMain"))
                 {
-                    if (auto* xml3 = xml2->getChildByName ("ebucore:identifier"))
+                    if (auto xml2 = xml->getChildByName ("ebucore:coreMetadata"))
                     {
-                        if (auto* xml4 = xml3->getChildByName ("dc:identifier"))
+                        if (auto xml3 = xml2->getChildByName ("ebucore:identifier"))
                         {
-                            auto ISRCCode = xml4->getAllSubText().fromFirstOccurrenceOf ("ISRC:", false, true);
+                            if (auto xml4 = xml3->getChildByName ("dc:identifier"))
+                            {
+                                auto ISRCCode = xml4->getAllSubText().fromFirstOccurrenceOf ("ISRC:", false, true);
 
-                            if (ISRCCode.isNotEmpty())
-                                destValues.set (WavAudioFormat::ISRC, ISRCCode);
+                                if (ISRCCode.isNotEmpty())
+                                    destValues.set (WavAudioFormat::ISRC, ISRCCode);
+                            }
                         }
                     }
                 }
@@ -993,14 +1013,16 @@ public:
                     input->skipNextBytes (2);
                     bitsPerSample = (unsigned int) (int) input->readShort();
 
-                    if (bitsPerSample > 64)
+                    if (bitsPerSample > 64 && (int) sampleRate != 0)
                     {
                         bytesPerFrame = bytesPerSec / (int) sampleRate;
-                        bitsPerSample = 8 * (unsigned int) bytesPerFrame / numChannels;
+
+                        if (numChannels != 0)
+                            bitsPerSample = 8 * (unsigned int) bytesPerFrame / numChannels;
                     }
                     else
                     {
-                        bytesPerFrame = numChannels * bitsPerSample / 8;
+                        bytesPerFrame = (int) (numChannels * bitsPerSample / 8);
                     }
 
                     if (format == 3)
@@ -1051,8 +1073,15 @@ public:
                 }
                 else if (chunkType == chunkName ("data"))
                 {
-                    if (! isRF64) // data size is expected to be -1, actual data size is in ds64 chunk
+                    if (isRF64)
+                    {
+                        if (dataLength > 0)
+                            chunkEnd = input->getPosition() + dataLength + (dataLength & 1);
+                    }
+                    else
+                    {
                         dataLength = length;
+                    }
 
                     dataChunkStart = input->getPosition();
                     lengthInSamples = (bytesPerFrame > 0) ? (dataLength / bytesPerFrame) : 0;
@@ -1219,17 +1248,17 @@ public:
         return true;
     }
 
-    static void copySampleData (unsigned int bitsPerSample, const bool usesFloatingPointData,
+    static void copySampleData (unsigned int numBitsPerSample, const bool floatingPointData,
                                 int* const* destSamples, int startOffsetInDestBuffer, int numDestChannels,
-                                const void* sourceData, int numChannels, int numSamples) noexcept
+                                const void* sourceData, int numberOfChannels, int numSamples) noexcept
     {
-        switch (bitsPerSample)
+        switch (numBitsPerSample)
         {
-            case 8:     ReadHelper<AudioData::Int32, AudioData::UInt8, AudioData::LittleEndian>::read (destSamples, startOffsetInDestBuffer, numDestChannels, sourceData, numChannels, numSamples); break;
-            case 16:    ReadHelper<AudioData::Int32, AudioData::Int16, AudioData::LittleEndian>::read (destSamples, startOffsetInDestBuffer, numDestChannels, sourceData, numChannels, numSamples); break;
-            case 24:    ReadHelper<AudioData::Int32, AudioData::Int24, AudioData::LittleEndian>::read (destSamples, startOffsetInDestBuffer, numDestChannels, sourceData, numChannels, numSamples); break;
-            case 32:    if (usesFloatingPointData) ReadHelper<AudioData::Float32, AudioData::Float32, AudioData::LittleEndian>::read (destSamples, startOffsetInDestBuffer, numDestChannels, sourceData, numChannels, numSamples);
-                        else                       ReadHelper<AudioData::Int32,   AudioData::Int32,   AudioData::LittleEndian>::read (destSamples, startOffsetInDestBuffer, numDestChannels, sourceData, numChannels, numSamples);
+            case 8:     ReadHelper<AudioData::Int32, AudioData::UInt8, AudioData::LittleEndian>::read (destSamples, startOffsetInDestBuffer, numDestChannels, sourceData, numberOfChannels, numSamples); break;
+            case 16:    ReadHelper<AudioData::Int32, AudioData::Int16, AudioData::LittleEndian>::read (destSamples, startOffsetInDestBuffer, numDestChannels, sourceData, numberOfChannels, numSamples); break;
+            case 24:    ReadHelper<AudioData::Int32, AudioData::Int24, AudioData::LittleEndian>::read (destSamples, startOffsetInDestBuffer, numDestChannels, sourceData, numberOfChannels, numSamples); break;
+            case 32:    if (floatingPointData) ReadHelper<AudioData::Float32, AudioData::Float32, AudioData::LittleEndian>::read (destSamples, startOffsetInDestBuffer, numDestChannels, sourceData, numberOfChannels, numSamples);
+                        else                   ReadHelper<AudioData::Int32,   AudioData::Int32,   AudioData::LittleEndian>::read (destSamples, startOffsetInDestBuffer, numDestChannels, sourceData, numberOfChannels, numSamples);
                         break;
             default:    jassertfalse; break;
         }
@@ -1312,13 +1341,14 @@ public:
             listInfoChunk = ListInfoChunk::createFrom (metadataValues);
             acidChunk     = AcidChunk::createFrom (metadataValues);
             trckChunk     = TracktionChunk::createFrom (metadataValues);
+            clm_Chunk     = Clm_Chunk::createFrom (metadataValues);
         }
 
         headerPosition = out->getPosition();
         writeHeader();
     }
 
-    ~WavAudioFormatWriter()
+    ~WavAudioFormatWriter() override
     {
         writeHeader();
     }
@@ -1348,7 +1378,7 @@ public:
         {
             // failed to write to disk, so let's try writing the header.
             // If it's just run out of disk space, then if it does manage
-            // to write the header, we'll still have a useable file..
+            // to write the header, we'll still have a usable file..
             writeHeader();
             writeFailed = true;
             return false;
@@ -1374,7 +1404,7 @@ public:
     }
 
 private:
-    MemoryBlock tempBlock, bwavChunk, axmlChunk, smplChunk, instChunk, cueChunk, listChunk, listInfoChunk, acidChunk, trckChunk;
+    MemoryBlock tempBlock, bwavChunk, axmlChunk, smplChunk, instChunk, cueChunk, listChunk, listInfoChunk, acidChunk, trckChunk, clm_Chunk;
     uint64 lengthInSamples = 0, bytesWritten = 0;
     int64 headerPosition = 0;
     bool writeFailed = false;
@@ -1412,6 +1442,7 @@ private:
                                        + chunkSize (listInfoChunk)
                                        + chunkSize (acidChunk)
                                        + chunkSize (trckChunk)
+                                       + chunkSize (clm_Chunk)
                                        + (8 + 28)); // (ds64 chunk)
 
         riffChunkSize += (riffChunkSize & 1);
@@ -1467,7 +1498,7 @@ private:
 
         output->writeShort ((short) numChannels);
         output->writeInt ((int) sampleRate);
-        output->writeInt ((int) (bytesPerFrame * sampleRate)); // nAvgBytesPerSec
+        output->writeInt ((int) ((double) bytesPerFrame * sampleRate)); // nAvgBytesPerSec
         output->writeShort ((short) bytesPerFrame); // nBlockAlign
         output->writeShort ((short) bitsPerSample); // wBitsPerSample
 
@@ -1494,6 +1525,7 @@ private:
         writeChunk (listInfoChunk, chunkName ("LIST"));
         writeChunk (acidChunk,     chunkName ("acid"));
         writeChunk (trckChunk,     chunkName ("Trkn"));
+        writeChunk (clm_Chunk,     chunkName ("clm "));
 
         writeChunkHeader (chunkName ("data"), isRF64 ? -1 : (int) (lengthInSamples * bytesPerFrame));
 
@@ -1517,17 +1549,17 @@ private:
         }
     }
 
-    static int getChannelMaskFromChannelLayout (const AudioChannelSet& channelLayout)
+    static int getChannelMaskFromChannelLayout (const AudioChannelSet& layout)
     {
-        if (channelLayout.isDiscreteLayout())
+        if (layout.isDiscreteLayout())
             return 0;
 
         // Don't add an extended format chunk for mono and stereo. Basically, all wav players
         // interpret a wav file with only one or two channels to be mono or stereo anyway.
-        if (channelLayout == AudioChannelSet::mono() || channelLayout == AudioChannelSet::stereo())
+        if (layout == AudioChannelSet::mono() || layout == AudioChannelSet::stereo())
             return 0;
 
-        auto channels = channelLayout.getChannelTypes();
+        auto channels = layout.getChannelTypes();
         auto wavChannelMask = 0;
 
         for (auto channel : channels)
@@ -1580,7 +1612,7 @@ public:
         {
             jassertfalse; // you must make sure that the window contains all the samples you're going to attempt to read.
 
-            zeromem (result, sizeof (float) * (size_t) num);
+            zeromem (result, (size_t) num * sizeof (float));
             return;
         }
 
@@ -1624,6 +1656,8 @@ public:
             default:    jassertfalse; break;
         }
     }
+
+    using AudioFormatReader::readMaxLevels;
 
 private:
     template <typename SampleType>
@@ -1693,7 +1727,7 @@ AudioFormatReader* WavAudioFormat::createReaderFor (InputStream* sourceStream, b
 
 MemoryMappedAudioFormatReader* WavAudioFormat::createMemoryMappedReader (const File& file)
 {
-    return createMemoryMappedReader (file.createInputStream());
+    return createMemoryMappedReader (file.createInputStream().release());
 }
 
 MemoryMappedAudioFormatReader* WavAudioFormat::createMemoryMappedReader (FileInputStream* fin)
@@ -1738,7 +1772,7 @@ namespace WavFileHelpers
         TemporaryFile tempFile (file);
         WavAudioFormat wav;
 
-        std::unique_ptr<AudioFormatReader> reader (wav.createReaderFor (file.createInputStream(), true));
+        std::unique_ptr<AudioFormatReader> reader (wav.createReaderFor (file.createInputStream().release(), true));
 
         if (reader != nullptr)
         {
@@ -1771,7 +1805,7 @@ bool WavAudioFormat::replaceMetadataInFile (const File& wavFile, const StringPai
 {
     using namespace WavFileHelpers;
 
-    std::unique_ptr<WavAudioFormatReader> reader (static_cast<WavAudioFormatReader*> (createReaderFor (wavFile.createInputStream(), true)));
+    std::unique_ptr<WavAudioFormatReader> reader (static_cast<WavAudioFormatReader*> (createReaderFor (wavFile.createInputStream().release(), true)));
 
     if (reader != nullptr)
     {
@@ -1808,12 +1842,16 @@ bool WavAudioFormat::replaceMetadataInFile (const File& wavFile, const StringPai
     return slowCopyWavFileWithNewMetadata (wavFile, newMetadata);
 }
 
+
+//==============================================================================
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
 struct WaveAudioFormatTests : public UnitTest
 {
-    WaveAudioFormatTests() : UnitTest ("Wave audio format tests") {}
+    WaveAudioFormatTests()
+        : UnitTest ("Wave audio format tests", UnitTestCategories::audio)
+    {}
 
     void runTest() override
     {

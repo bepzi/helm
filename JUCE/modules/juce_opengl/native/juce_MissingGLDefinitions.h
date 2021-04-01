@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -96,6 +95,10 @@ enum MissingOpenGLDefinitions
     GL_MAX_ELEMENTS_INDICES         = 0x80E9,
    #endif
 
+   #ifndef GL_POINT_SPRITE
+    GL_POINT_SPRITE                 = 0x8861,
+   #endif
+
    #if JUCE_WINDOWS && ! defined (GL_TEXTURE0)
     GL_OPERAND0_RGB                 = 0x8590,
     GL_OPERAND1_RGB                 = 0x8591,
@@ -122,8 +125,14 @@ enum MissingOpenGLDefinitions
     GL_STATIC_DRAW                  = 0x88E4,
     GL_DYNAMIC_DRAW                 = 0x88E8,
     GL_STREAM_DRAW                  = 0x88E0,
+
     GL_GEOMETRY_SHADER              = 0x8DD9,
     GL_LINE_STRIP_ADJACENCY         = 0x000B,
+    GL_INTERLEAVED_ATTRIBS          = 0x8C8C,
+    GL_STATIC_READ                  = 0x88E5,
+    GL_TRANSFORM_FEEDBACK_BUFFER    = 0x8C8E,
+    GL_RASTERIZER_DISCARD           = 0x8C89,
+    GL_MAP_READ_BIT                 = 0x0001,
 
     WGL_NUMBER_PIXEL_FORMATS_ARB    = 0x2000,
     WGL_DRAW_TO_WINDOW_ARB          = 0x2001,

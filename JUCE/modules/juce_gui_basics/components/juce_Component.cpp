@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -65,9 +64,42 @@ public:
         }
     }
 
-    template <typename ...Params>
+    // g++ 4.8 cannot deduce the parameter pack inside the function pointer when it has more than one element
+   #if defined(__GNUC__) && __GNUC__ < 5 && ! defined(__clang__)
+    template <typename... Params>
     static void sendMouseEvent (Component& comp, Component::BailOutChecker& checker,
-                                void (MouseListener::*eventMethod) (Params...), Params... params)
+                                void (MouseListener::*eventMethod) (const MouseEvent&),
+                                Params... params)
+    {
+        sendMouseEvent <decltype (eventMethod), Params...> (comp, checker, eventMethod, params...);
+    }
+
+    template <typename... Params>
+    static void sendMouseEvent (Component& comp, Component::BailOutChecker& checker,
+                                void (MouseListener::*eventMethod) (const MouseEvent&, const MouseWheelDetails&),
+                                Params... params)
+    {
+        sendMouseEvent <decltype (eventMethod), Params...> (comp, checker, eventMethod, params...);
+    }
+
+    template <typename... Params>
+    static void sendMouseEvent (Component& comp, Component::BailOutChecker& checker,
+                                void (MouseListener::*eventMethod) (const MouseEvent&, float),
+                                Params... params)
+    {
+        sendMouseEvent <decltype (eventMethod), Params...> (comp, checker, eventMethod, params...);
+    }
+
+    template <typename EventMethod, typename... Params>
+    static void sendMouseEvent (Component& comp, Component::BailOutChecker& checker,
+                                EventMethod eventMethod,
+                                Params... params)
+   #else
+    template <typename... Params>
+    static void sendMouseEvent (Component& comp, Component::BailOutChecker& checker,
+                                void (MouseListener::*eventMethod) (Params...),
+                                Params... params)
+   #endif
     {
         if (checker.shouldBailOut())
             return;
@@ -170,18 +202,34 @@ struct ScalingHelpers
     // judder when moving windows
     static Rectangle<int> unscaledScreenPosToScaled (float scale, Rectangle<int> pos) noexcept
     {
-        return scale != 1.0f ? Rectangle<int> (roundToInt (pos.getX() / scale),
-                                               roundToInt (pos.getY() / scale),
-                                               roundToInt (pos.getWidth() / scale),
-                                               roundToInt (pos.getHeight() / scale)) : pos;
+        return scale != 1.0f ? Rectangle<int> (roundToInt ((float) pos.getX() / scale),
+                                               roundToInt ((float) pos.getY() / scale),
+                                               roundToInt ((float) pos.getWidth() / scale),
+                                               roundToInt ((float) pos.getHeight() / scale)) : pos;
     }
 
     static Rectangle<int> scaledScreenPosToUnscaled (float scale, Rectangle<int> pos) noexcept
     {
-        return scale != 1.0f ? Rectangle<int> (roundToInt (pos.getX() * scale),
-                                               roundToInt (pos.getY() * scale),
-                                               roundToInt (pos.getWidth() * scale),
-                                               roundToInt (pos.getHeight() * scale)) : pos;
+        return scale != 1.0f ? Rectangle<int> (roundToInt ((float) pos.getX() * scale),
+                                               roundToInt ((float) pos.getY() * scale),
+                                               roundToInt ((float) pos.getWidth() * scale),
+                                               roundToInt ((float) pos.getHeight() * scale)) : pos;
+    }
+
+    static Rectangle<float> unscaledScreenPosToScaled (float scale, Rectangle<float> pos) noexcept
+    {
+        return scale != 1.0f ? Rectangle<float> (pos.getX() / scale,
+                                                 pos.getY() / scale,
+                                                 pos.getWidth() / scale,
+                                                 pos.getHeight() / scale) : pos;
+    }
+
+    static Rectangle<float> scaledScreenPosToUnscaled (float scale, Rectangle<float> pos) noexcept
+    {
+        return scale != 1.0f ? Rectangle<float> (pos.getX() * scale,
+                                                 pos.getY() * scale,
+                                                 pos.getWidth() * scale,
+                                                 pos.getHeight() * scale) : pos;
     }
 
     template <typename PointOrRect>
@@ -253,7 +301,7 @@ struct Component::ComponentHelpers
     }
 
     //==============================================================================
-    static inline bool hitTest (Component& comp, Point<int> localPoint)
+    static bool hitTest (Component& comp, Point<int> localPoint)
     {
         return isPositiveAndBelow (localPoint.x, comp.getWidth())
             && isPositiveAndBelow (localPoint.y, comp.getHeight())
@@ -339,6 +387,10 @@ struct Component::ComponentHelpers
     template <typename PointOrRect>
     static PointOrRect convertCoordinate (const Component* target, const Component* source, PointOrRect p)
     {
+        float total_scaling = source->getTotalPixelScaling();
+        Component* top = nullptr;
+        if (source)
+            top = source->getTopLevelComponent();
         while (source != nullptr)
         {
             if (source == target)
@@ -346,6 +398,9 @@ struct Component::ComponentHelpers
 
             if (source->isParentOf (target))
                 return convertFromDistantParentSpace (source, *target, p);
+
+            if (source == top)
+              p /= total_scaling;
 
             p = convertToParentSpace (*source, p);
             source = source->getParentComponent();
@@ -404,7 +459,7 @@ struct Component::ComponentHelpers
         if (auto* p = comp.getParentComponent())
             return p->getLocalBounds();
 
-        return Desktop::getInstance().getDisplays().getMainDisplay().userArea;
+        return Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea;
     }
 
     static void releaseAllCachedImageResources (Component& c)
@@ -441,7 +496,7 @@ Component::~Component()
 
     if (parentComponent != nullptr)
         parentComponent->removeChildComponent (parentComponent->childComponentList.indexOf (this), true, false);
-    else if (currentlyFocusedComponent == this || isParentOf (currentlyFocusedComponent))
+    else if (hasKeyboardFocus (true))
         giveAwayFocus (currentlyFocusedComponent != this);
 
     if (flags.hasHeavyweightPeerFlag)
@@ -456,7 +511,7 @@ void Component::setName (const String& name)
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
 
     if (componentName != name)
     {
@@ -482,7 +537,7 @@ void Component::setVisible (bool shouldBeVisible)
     {
         // if component methods are being called from threads other than the message
         // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-        ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
+        JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
 
         const WeakReference<Component> safePointer (this);
         flags.visibleFlag = shouldBeVisible;
@@ -498,11 +553,12 @@ void Component::setVisible (bool shouldBeVisible)
         {
             ComponentHelpers::releaseAllCachedImageResources (*this);
 
-            if (currentlyFocusedComponent == this || isParentOf (currentlyFocusedComponent))
+            if (hasKeyboardFocus (true))
             {
                 if (parentComponent != nullptr)
                     parentComponent->grabKeyboardFocus();
-                else
+
+                if (hasKeyboardFocus (true))
                     giveAwayFocus (true);
             }
         }
@@ -562,7 +618,7 @@ void Component::addToDesktop (int styleWanted, void* nativeWindowToAttachTo)
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED
 
     if (isOpaque())
         styleWanted &= ~ComponentPeer::windowIsSemiTransparent;
@@ -663,10 +719,12 @@ void Component::removeFromDesktop()
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
 
     if (flags.hasHeavyweightPeerFlag)
     {
+        ComponentHelpers::releaseAllCachedImageResources (*this);
+
         auto* peer = ComponentPeer::getPeerFor (this);
         jassert (peer != nullptr);
 
@@ -732,7 +790,7 @@ bool Component::isOpaque() const noexcept
 //==============================================================================
 struct StandardCachedComponentImage  : public CachedComponentImage
 {
-    StandardCachedComponentImage (Component& c) noexcept : owner (c), scale (1.0f) {}
+    StandardCachedComponentImage (Component& c) noexcept : owner (c)  {}
 
     void paint (Graphics& g) override
     {
@@ -774,8 +832,8 @@ struct StandardCachedComponentImage  : public CachedComponentImage
         validArea = compBounds;
 
         g.setColour (Colours::black.withAlpha (owner.getAlpha()));
-        g.drawImageTransformed (image, AffineTransform::scale (compBounds.getWidth()  / (float) imageBounds.getWidth(),
-                                                               compBounds.getHeight() / (float) imageBounds.getHeight()), false);
+        g.drawImageTransformed (image, AffineTransform::scale ((float) compBounds.getWidth()  / (float) imageBounds.getWidth(),
+                                                               (float) compBounds.getHeight() / (float) imageBounds.getHeight()), false);
     }
 
     bool invalidateAll() override                            { validArea.clear(); return true; }
@@ -786,7 +844,7 @@ private:
     Image image;
     RectangleList<int> validArea;
     Component& owner;
-    float scale;
+    float scale = 1.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StandardCachedComponentImage)
 };
@@ -839,7 +897,7 @@ void Component::toFront (bool setAsForeground)
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
 
     if (flags.hasHeavyweightPeerFlag)
     {
@@ -992,8 +1050,8 @@ bool Component::isAlwaysOnTop() const noexcept
 }
 
 //==============================================================================
-int Component::proportionOfWidth  (float proportion) const noexcept   { return roundToInt (proportion * boundsRelativeToParent.getWidth()); }
-int Component::proportionOfHeight (float proportion) const noexcept   { return roundToInt (proportion * boundsRelativeToParent.getHeight()); }
+int Component::proportionOfWidth  (float proportion) const noexcept   { return roundToInt (proportion * (float) boundsRelativeToParent.getWidth()); }
+int Component::proportionOfHeight (float proportion) const noexcept   { return roundToInt (proportion * (float) boundsRelativeToParent.getHeight()); }
 
 int Component::getParentWidth() const noexcept
 {
@@ -1009,7 +1067,7 @@ int Component::getParentHeight() const noexcept
 
 Rectangle<int> Component::getParentMonitorArea() const
 {
-    return Desktop::getInstance().getDisplays().getDisplayContaining (getScreenBounds().getCentre()).userArea;
+    return Desktop::getInstance().getDisplays().getDisplayForRect (getScreenBounds())->userArea;
 }
 
 int Component::getScreenX() const                       { return getScreenPosition().x; }
@@ -1017,20 +1075,22 @@ int Component::getScreenY() const                       { return getScreenPositi
 Point<int>     Component::getScreenPosition() const     { return localPointToGlobal (Point<int>()); }
 Rectangle<int> Component::getScreenBounds() const       { return localAreaToGlobal (getLocalBounds()); }
 
-Point<int>     Component::getLocalPoint (const Component* source, Point<int> point) const     { return ComponentHelpers::convertCoordinate (this, source, point); }
-Point<float>   Component::getLocalPoint (const Component* source, Point<float> point) const   { return ComponentHelpers::convertCoordinate (this, source, point); }
-Rectangle<int> Component::getLocalArea  (const Component* source, Rectangle<int> area) const  { return ComponentHelpers::convertCoordinate (this, source, area); }
+Point<int>       Component::getLocalPoint (const Component* source, Point<int> point) const       { return ComponentHelpers::convertCoordinate (this, source, point); }
+Point<float>     Component::getLocalPoint (const Component* source, Point<float> point) const     { return ComponentHelpers::convertCoordinate (this, source, point); }
+Rectangle<int>   Component::getLocalArea  (const Component* source, Rectangle<int> area) const    { return ComponentHelpers::convertCoordinate (this, source, area); }
+Rectangle<float> Component::getLocalArea  (const Component* source, Rectangle<float> area) const  { return ComponentHelpers::convertCoordinate (this, source, area); }
 
-Point<int>     Component::localPointToGlobal (Point<int> point) const     { return ComponentHelpers::convertCoordinate (nullptr, this, point); }
-Point<float>   Component::localPointToGlobal (Point<float> point) const   { return ComponentHelpers::convertCoordinate (nullptr, this, point); }
-Rectangle<int> Component::localAreaToGlobal  (Rectangle<int> area) const  { return ComponentHelpers::convertCoordinate (nullptr, this, area); }
+Point<int>       Component::localPointToGlobal (Point<int> point) const       { return ComponentHelpers::convertCoordinate (nullptr, this, point); }
+Point<float>     Component::localPointToGlobal (Point<float> point) const     { return ComponentHelpers::convertCoordinate (nullptr, this, point); }
+Rectangle<int>   Component::localAreaToGlobal  (Rectangle<int> area) const    { return ComponentHelpers::convertCoordinate (nullptr, this, area); }
+Rectangle<float> Component::localAreaToGlobal  (Rectangle<float> area) const  { return ComponentHelpers::convertCoordinate (nullptr, this, area); }
 
 //==============================================================================
 void Component::setBounds (int x, int y, int w, int h)
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
 
     if (w < 0) w = 0;
     if (h < 0) h = 0;
@@ -1129,7 +1189,12 @@ void Component::sendMovedResizedMessages (bool wasMoved, bool wasResized)
         parentComponent->childBoundsChanged (this);
 
     if (! checker.shouldBailOut())
-        componentListeners.callChecked (checker, [=] (ComponentListener& l) { l.componentMovedOrResized (*this, wasMoved, wasResized); });
+    {
+        componentListeners.callChecked (checker, [this, wasMoved, wasResized] (ComponentListener& l)
+        {
+            l.componentMovedOrResized (*this, wasMoved, wasResized);
+        });
+    }
 }
 
 void Component::setSize (int w, int h)                  { setBounds (getX(), getY(), w, h); }
@@ -1145,8 +1210,8 @@ void Component::setCentrePosition (int x, int y)        { setCentrePosition ({ x
 
 void Component::setCentreRelative (float x, float y)
 {
-    setCentrePosition (roundToInt (getParentWidth() * x),
-                       roundToInt (getParentHeight() * y));
+    setCentrePosition (roundToInt ((float) getParentWidth()  * x),
+                       roundToInt ((float) getParentHeight() * y));
 }
 
 void Component::setBoundsRelative (Rectangle<float> target)
@@ -1253,6 +1318,22 @@ AffineTransform Component::getTransform() const
     return affineTransform != nullptr ? *affineTransform : AffineTransform();
 }
 
+float Component::getApproximateScaleFactorForComponent (Component* targetComponent)
+{
+    AffineTransform transform;
+
+    for (auto* target = targetComponent; target != nullptr; target = target->getParentComponent())
+    {
+        transform = transform.followedBy (target->getTransform());
+
+        if (target->isOnDesktop())
+            transform = transform.scaled (target->getDesktopScaleFactor());
+    }
+
+    auto transformScale = std::sqrt (std::abs (transform.getDeterminant()));
+    return transformScale / Desktop::getInstance().getGlobalScaleFactor();
+}
+
 //==============================================================================
 bool Component::hitTest (int x, int y)
 {
@@ -1316,13 +1397,14 @@ bool Component::reallyContains (Point<int> point, bool returnTrueIfWithinAChild)
 
 Component* Component::getComponentAt (Point<int> position)
 {
+    Point<int> scale = (position.toFloat() * getPixelScaling()).roundToInt();
     if (flags.visibleFlag && ComponentHelpers::hitTest (*this, position))
     {
         for (int i = childComponentList.size(); --i >= 0;)
         {
             auto* child = childComponentList.getUnchecked(i);
 
-            child = child->getComponentAt (ComponentHelpers::convertFromParentSpace (*child, position));
+            child = child->getComponentAt (ComponentHelpers::convertFromParentSpace (*child, scale));
 
             if (child != nullptr)
                 return child;
@@ -1344,7 +1426,9 @@ void Component::addChildComponent (Component& child, int zOrder)
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
+
+    jassert (this != &child); // adding a component to itself!?
 
     if (child.parentComponent != this)
     {
@@ -1420,7 +1504,7 @@ Component* Component::removeChildComponent (int index, bool sendParentEvents, bo
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
 
     auto* child = childComponentList [index];
 
@@ -1607,7 +1691,7 @@ void Component::enterModalState (bool shouldTakeKeyboardFocus,
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED
 
     if (! isCurrentlyModal (false))
     {
@@ -1784,7 +1868,7 @@ void Component::internalRepaintUnchecked (Rectangle<int> area, bool isEntireComp
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED
 
     if (flags.visibleFlag)
     {
@@ -1793,14 +1877,17 @@ void Component::internalRepaintUnchecked (Rectangle<int> area, bool isEntireComp
                                      : cachedImage->invalidate (area)))
                 return;
 
+        if (area.isEmpty())
+            return;
+
         if (flags.hasHeavyweightPeerFlag)
         {
             if (auto* peer = getPeer())
             {
                 // Tweak the scaling so that the component's integer size exactly aligns with the peer's scaled size
                 auto peerBounds = peer->getBounds();
-                auto scaled = area * Point<float> (peerBounds.getWidth()  / (float) getWidth(),
-                                                   peerBounds.getHeight() / (float) getHeight());
+                auto scaled = area * Point<float> ((float) peerBounds.getWidth()  / (float) getWidth(),
+                                                   (float) peerBounds.getHeight() / (float) getHeight());
 
                 peer->repaint (affineTransform != nullptr ? scaled.transformedBy (*affineTransform) : scaled);
             }
@@ -1847,12 +1934,10 @@ void Component::paintComponentAndChildren (Graphics& g)
     }
     else
     {
-        g.saveState();
+        Graphics::ScopedSaveState ss (g);
 
         if (! (ComponentHelpers::clipObscuredRegions (*this, g, clipBounds, {}) && g.isClipEmpty()))
             paint (g);
-
-        g.restoreState();
     }
 
     for (int i = 0; i < childComponentList.size(); ++i)
@@ -1863,17 +1948,16 @@ void Component::paintComponentAndChildren (Graphics& g)
         {
             if (child.affineTransform != nullptr)
             {
-                g.saveState();
+                Graphics::ScopedSaveState ss (g);
+
                 g.addTransform (*child.affineTransform);
 
                 if ((child.flags.dontClipGraphicsFlag && ! g.isClipEmpty()) || g.reduceClipRegion (child.getBounds()))
                     child.paintWithinParentContext (g);
-
-                g.restoreState();
             }
             else if (clipBounds.intersects (child.getBounds()))
             {
-                g.saveState();
+                Graphics::ScopedSaveState ss (g);
 
                 if (child.flags.dontClipGraphicsFlag)
                 {
@@ -1897,15 +1981,12 @@ void Component::paintComponentAndChildren (Graphics& g)
                     if (nothingClipped || ! g.isClipEmpty())
                         child.paintWithinParentContext (g);
                 }
-
-                g.restoreState();
             }
         }
     }
 
-    g.saveState();
+    Graphics::ScopedSaveState ss (g);
     paintOverChildren (g);
-    g.restoreState();
 }
 
 void Component::paintEntireComponent (Graphics& g, bool ignoreAlphaLevel)
@@ -1932,15 +2013,15 @@ void Component::paintEntireComponent (Graphics& g, bool ignoreAlphaLevel)
                            scaledBounds.getWidth(), scaledBounds.getHeight(), ! flags.opaqueFlag);
         {
             Graphics g2 (effectImage);
-            g2.addTransform (AffineTransform::scale (scaledBounds.getWidth()  / (float) getWidth(),
-                                                     scaledBounds.getHeight() / (float) getHeight()));
+            g2.addTransform (AffineTransform::scale ((float) scaledBounds.getWidth()  / (float) getWidth(),
+                                                     (float) scaledBounds.getHeight() / (float) getHeight()));
             paintComponentAndChildren (g2);
         }
 
-        g.saveState();
+        Graphics::ScopedSaveState ss (g);
+
         g.addTransform (AffineTransform::scale (1.0f / scale));
         effect->applyEffect (effectImage, g, scale, ignoreAlphaLevel ? 1.0f : getAlpha());
-        g.restoreState();
     }
     else if (componentTransparency > 0 && ! ignoreAlphaLevel)
     {
@@ -1983,16 +2064,16 @@ Image Component::createComponentSnapshot (Rectangle<int> areaToGrab,
     if (r.isEmpty())
         return {};
 
-    auto w = roundToInt (scaleFactor * r.getWidth());
-    auto h = roundToInt (scaleFactor * r.getHeight());
+    auto w = roundToInt (scaleFactor * (float) r.getWidth());
+    auto h = roundToInt (scaleFactor * (float) r.getHeight());
 
     Image image (flags.opaqueFlag ? Image::RGB : Image::ARGB, w, h, true);
 
     Graphics g (image);
 
     if (w != getWidth() || h != getHeight())
-        g.addTransform (AffineTransform::scale (w / (float) r.getWidth(),
-                                                h / (float) r.getHeight()));
+        g.addTransform (AffineTransform::scale ((float) w / (float) r.getWidth(),
+                                                (float) h / (float) r.getHeight()));
     g.setOrigin (-r.getPosition());
 
     paintEntireComponent (g, true);
@@ -2013,8 +2094,8 @@ void Component::setComponentEffect (ImageEffectFilter* newEffect)
 LookAndFeel& Component::getLookAndFeel() const noexcept
 {
     for (auto* c = this; c != nullptr; c = c->parentComponent)
-        if (c->lookAndFeel != nullptr)
-            return *(c->lookAndFeel);
+        if (auto lf = c->lookAndFeel.get())
+            return *lf;
 
     return LookAndFeel::getDefaultLookAndFeel();
 }
@@ -2164,10 +2245,12 @@ void Component::addComponentListener (ComponentListener* newListener)
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    #if JUCE_DEBUG || JUCE_LOG_ASSERTIONS
+   #if JUCE_DEBUG || JUCE_LOG_ASSERTIONS
     if (getParentComponent() != nullptr)
-        ASSERT_MESSAGE_MANAGER_IS_LOCKED;
-    #endif
+    {
+        JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED
+    }
+   #endif
 
     componentListeners.add (newListener);
 }
@@ -2218,7 +2301,7 @@ void Component::addMouseListener (MouseListener* newListener,
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED
 
     // If you register a component as a mouselistener for itself, it'll receive all the events
     // twice - once via the direct callback that all components get anyway, and then again as a listener!
@@ -2234,7 +2317,7 @@ void Component::removeMouseListener (MouseListener* listenerToRemove)
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED
 
     if (mouseListeners != nullptr)
         mouseListeners->removeListener (listenerToRemove);
@@ -2520,6 +2603,9 @@ void Component::internalMagnifyGesture (MouseInputSource source, Point<float> re
 
 void Component::sendFakeMouseMove() const
 {
+    if (flags.ignoresMouseClicksFlag && ! flags.allowChildMouseClicksFlag)
+        return;
+
     auto mainMouse = Desktop::getInstance().getMainMouseSource();
 
     if (! mainMouse.isDragging())
@@ -2734,7 +2820,7 @@ void Component::grabKeyboardFocus()
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED
 
     grabFocusInternal (focusChangedDirectly, true);
 
@@ -2749,7 +2835,7 @@ void Component::moveKeyboardFocusToSibling (bool moveToNext)
 {
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
-    ASSERT_MESSAGE_MANAGER_IS_LOCKED
+    JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED
 
     if (parentComponent != nullptr)
     {
@@ -2863,7 +2949,7 @@ bool Component::isMouseOver (bool includeChildren) const
         auto* c = ms.getComponentUnderMouse();
 
         if (c == this || (includeChildren && isParentOf (c)))
-            if (ms.isDragging() || ! ms.isTouch())
+            if (ms.isDragging() || ! (ms.isTouch() || ms.isPen()))
                 if (c->reallyContains (c->getLocalPoint (nullptr, ms.getScreenPosition()).roundToInt(), false))
                     return true;
     }
@@ -2935,7 +3021,8 @@ void Component::modifierKeysChanged (const ModifierKeys& modifiers)
 
 void Component::internalModifierKeysChanged()
 {
-    sendFakeMouseMove();
+    auto mainMouse = Desktop::getInstance().getMainMouseSource();
+    mainMouse.triggerFakeMove();
     modifierKeysChanged (ModifierKeys::currentModifiers);
 }
 

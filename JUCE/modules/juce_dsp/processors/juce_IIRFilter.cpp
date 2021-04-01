@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -99,7 +98,7 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
 
     auto n = std::tan (MathConstants<NumericType>::pi * frequency / static_cast<NumericType> (sampleRate));
 
-    return new Coefficients (n, n, n + 1, n - 1);
+    return *new Coefficients (n, n, n + 1, n - 1);
 }
 
 template <typename NumericType>
@@ -111,7 +110,7 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
 
     auto n = std::tan (MathConstants<NumericType>::pi * frequency / static_cast<NumericType> (sampleRate));
 
-    return new Coefficients (1, -1, n + 1, n - 1);
+    return *new Coefficients (1, -1, n + 1, n - 1);
 }
 
 template <typename NumericType>
@@ -123,7 +122,7 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
 
     auto n = std::tan (MathConstants<NumericType>::pi * frequency / static_cast<NumericType> (sampleRate));
 
-    return new Coefficients (n - 1, n + 1, n + 1, n - 1);
+    return *new Coefficients (n - 1, n + 1, n + 1, n - 1);
 }
 
 template <typename NumericType>
@@ -147,9 +146,9 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
     auto invQ = 1 / Q;
     auto c1 = 1 / (1 + invQ * n + nSquared);
 
-    return new Coefficients (c1, c1 * 2, c1,
-                             1, c1 * 2 * (1 - nSquared),
-                             c1 * (1 - invQ * n + nSquared));
+    return *new Coefficients (c1, c1 * 2, c1,
+                              1, c1 * 2 * (1 - nSquared),
+                              c1 * (1 - invQ * n + nSquared));
 }
 
 template <typename NumericType>
@@ -173,9 +172,9 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
     auto invQ = 1 / Q;
     auto c1 = 1 / (1 + invQ * n + nSquared);
 
-    return new Coefficients (c1, c1 * -2, c1,
-                             1, c1 * 2 * (nSquared - 1),
-                             c1 * (1 - invQ * n + nSquared));
+    return *new Coefficients (c1, c1 * -2, c1,
+                              1, c1 * 2 * (nSquared - 1),
+                              c1 * (1 - invQ * n + nSquared));
 }
 
 template <typename NumericType>
@@ -199,10 +198,10 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
     auto invQ = 1 / Q;
     auto c1 = 1 / (1 + invQ * n + nSquared);
 
-    return new Coefficients (c1 * n * invQ, 0,
-                            -c1 * n * invQ, 1,
-                             c1 * 2 * (1 - nSquared),
-                             c1 * (1 - invQ * n + nSquared));
+    return *new Coefficients (c1 * n * invQ, 0,
+                             -c1 * n * invQ, 1,
+                              c1 * 2 * (1 - nSquared),
+                              c1 * (1 - invQ * n + nSquared));
 }
 
 template <typename NumericType>
@@ -228,7 +227,7 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
     auto b0 = c1 * (1 + nSquared);
     auto b1 = 2 * c1 * (1 - nSquared);
 
-    return new Coefficients (b0, b1, b0, 1, b1, c1 * (1 - n * invQ + nSquared));
+    return *new Coefficients (b0, b1, b0, 1, b1, c1 * (1 - n * invQ + nSquared));
 }
 
 template <typename NumericType>
@@ -254,7 +253,7 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
     auto b0 = c1 * (1 - n * invQ + nSquared);
     auto b1 = c1 * 2 * (1 - nSquared);
 
-    return new Coefficients (b0, b1, 1, 1, b1, b0);
+    return *new Coefficients (b0, b1, 1, 1, b1, b0);
 }
 
 template <typename NumericType>
@@ -275,12 +274,12 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
     auto beta = std::sin (omega) * std::sqrt (A) / Q;
     auto aminus1TimesCoso = aminus1 * coso;
 
-    return new Coefficients (A * (aplus1 - aminus1TimesCoso + beta),
-                             A * 2 * (aminus1 - aplus1 * coso),
-                             A * (aplus1 - aminus1TimesCoso - beta),
-                             aplus1 + aminus1TimesCoso + beta,
-                             -2 * (aminus1 + aplus1 * coso),
-                             aplus1 + aminus1TimesCoso - beta);
+    return *new Coefficients (A * (aplus1 - aminus1TimesCoso + beta),
+                              A * 2 * (aminus1 - aplus1 * coso),
+                              A * (aplus1 - aminus1TimesCoso - beta),
+                              aplus1 + aminus1TimesCoso + beta,
+                              -2 * (aminus1 + aplus1 * coso),
+                              aplus1 + aminus1TimesCoso - beta);
 }
 
 template <typename NumericType>
@@ -301,12 +300,12 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
     auto beta = std::sin (omega) * std::sqrt (A) / Q;
     auto aminus1TimesCoso = aminus1 * coso;
 
-    return new Coefficients (A * (aplus1 + aminus1TimesCoso + beta),
-                             A * -2 * (aminus1 + aplus1 * coso),
-                             A * (aplus1 + aminus1TimesCoso - beta),
-                             aplus1 - aminus1TimesCoso + beta,
-                             2 * (aminus1 - aplus1 * coso),
-                             aplus1 - aminus1TimesCoso - beta);
+    return *new Coefficients (A * (aplus1 + aminus1TimesCoso + beta),
+                              A * -2 * (aminus1 + aplus1 * coso),
+                              A * (aplus1 + aminus1TimesCoso - beta),
+                              aplus1 - aminus1TimesCoso + beta,
+                              2 * (aminus1 - aplus1 * coso),
+                              aplus1 - aminus1TimesCoso - beta);
 }
 
 template <typename NumericType>
@@ -327,10 +326,10 @@ typename IIR::Coefficients<NumericType>::Ptr IIR::Coefficients<NumericType>::mak
     auto alphaTimesA = alpha * A;
     auto alphaOverA = alpha / A;
 
-    return new Coefficients (1 + alphaTimesA, c2,
-                             1 - alphaTimesA,
-                             1 + alphaOverA, c2,
-                             1 - alphaOverA);
+    return *new Coefficients (1 + alphaTimesA, c2,
+                              1 - alphaTimesA,
+                              1 + alphaOverA, c2,
+                              1 - alphaOverA);
 }
 
 template <typename NumericType>

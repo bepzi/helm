@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -70,7 +69,7 @@ public:
                  int minimumTransactionsToKeep = 30);
 
     /** Destructor. */
-    ~UndoManager();
+    ~UndoManager() override;
 
     //==============================================================================
     /** Deletes all stored actions in the list. */
@@ -126,7 +125,7 @@ public:
         method are grouped together and undone/redone together by a single call to
         undo() or redo().
     */
-    void beginNewTransaction() noexcept;
+    void beginNewTransaction();
 
     /** Starts a new group of actions that together will be treated as a single transaction.
 
@@ -137,7 +136,7 @@ public:
         @param actionName   a description of the transaction that is about to be
                             performed
     */
-    void beginNewTransaction (const String& actionName) noexcept;
+    void beginNewTransaction (const String& actionName);
 
     /** Changes the name stored for the current transaction.
 
@@ -145,18 +144,18 @@ public:
         called, but this can be used to change that name without starting a new
         transaction.
     */
-    void setCurrentTransactionName (const String& newName) noexcept;
+    void setCurrentTransactionName (const String& newName);
 
     /** Returns the name of the current transaction.
         @see setCurrentTransactionName
     */
-    String getCurrentTransactionName() const noexcept;
+    String getCurrentTransactionName() const;
 
     //==============================================================================
     /** Returns true if there's at least one action in the list to undo.
         @see getUndoDescription, undo, canRedo
     */
-    bool canUndo() const noexcept;
+    bool canUndo() const;
 
     /** Tries to roll-back the last transaction.
         @returns    true if the transaction can be undone, and false if it fails, or
@@ -217,7 +216,7 @@ public:
     /** Returns true if there's at least one action in the list to redo.
         @see getRedoDescription, redo, canUndo
     */
-    bool canRedo() const noexcept;
+    bool canRedo() const;
 
     /** Tries to redo the last transaction that was undone.
         @returns   true if the transaction can be redone, and false if it fails, or
@@ -243,16 +242,18 @@ public:
     */
     Time getTimeOfRedoTransaction() const;
 
+    /** Returns true if the caller code is in the middle of an undo or redo action. */
+    bool isPerformingUndoRedo() const;
+
 private:
     //==============================================================================
     struct ActionSet;
-    friend struct ContainerDeletePolicy<ActionSet>;
     OwnedArray<ActionSet> transactions, stashedFutureTransactions;
     String newTransactionName;
     int totalUnitsStored = 0, maxNumUnitsToKeep = 0, minimumTransactionsToKeep = 0, nextIndex = 0;
-    bool newTransaction = true, reentrancyCheck = false;
-    ActionSet* getCurrentSet() const noexcept;
-    ActionSet* getNextSet() const noexcept;
+    bool newTransaction = true, isInsideUndoRedoCall = false;
+    ActionSet* getCurrentSet() const;
+    ActionSet* getNextSet() const;
     void moveFutureTransactionsToStash();
     void restoreStashedFutureTransactions();
     void dropOldTransactionsIfTooLarge();

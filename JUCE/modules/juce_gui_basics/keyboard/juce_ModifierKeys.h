@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -43,7 +42,7 @@ class JUCE_API  ModifierKeys
 public:
     //==============================================================================
     /** Creates a ModifierKeys object with no flags set. */
-    ModifierKeys() noexcept;
+    ModifierKeys() = default;
 
     /** Creates a ModifierKeys object from a raw set of flags.
 
@@ -54,16 +53,16 @@ public:
     ModifierKeys (int flags) noexcept;
 
     /** Creates a copy of another object. */
-    ModifierKeys (const ModifierKeys& other) noexcept;
+    ModifierKeys (const ModifierKeys&) = default;
 
     /** Copies this object from another one. */
-    ModifierKeys& operator= (const ModifierKeys other) noexcept;
+    ModifierKeys& operator= (const ModifierKeys&) = default;
 
     //==============================================================================
     /** Checks whether the 'command' key flag is set (or 'ctrl' on Windows/Linux).
 
         This is a platform-agnostic way of checking for the operating system's
-        preferred command-key modifier - so on the Mac it tests for the Apple key, on
+        preferred command-key modifier - so on the Mac it tests for the cmd key, on
         Windows/Linux, it's actually checking for the CTRL key.
     */
     inline bool isCommandDown() const noexcept          { return testFlags (commandModifier); }
@@ -136,7 +135,7 @@ public:
         /** Middle mouse button flag. */
         middleButtonModifier                    = 64,
 
-       #if JUCE_MAC
+       #if JUCE_MAC || JUCE_IOS
         /** Command key flag - on windows this is the same as the CTRL key flag. */
         commandModifier                         = 8,
 
@@ -206,7 +205,7 @@ public:
     static ModifierKeys getCurrentModifiersRealtime() noexcept;
 
 private:
-    int flags;
+    int flags = 0;
 };
 
 } // namespace juce

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -19,6 +19,14 @@
 
   ==============================================================================
 */
+
+#if ! DOXYGEN && (JUCE_MAC || JUCE_IOS)
+ #if __LP64__
+  using OSType = unsigned int;
+ #else
+  using OSType = unsigned long;
+ #endif
+#endif
 
 namespace juce
 {
@@ -48,7 +56,7 @@ public:
 
         You can use its operator= method to point it at a proper file.
     */
-    File() noexcept  {}
+    File() = default;
 
     /** Creates a file from an absolute path.
 
@@ -66,7 +74,7 @@ public:
     File (const File&);
 
     /** Destructor. */
-    ~File() noexcept  {}
+    ~File() = default;
 
     /** Sets the file based on an absolute pathname.
 
@@ -114,7 +122,7 @@ public:
     bool isDirectory() const;
 
     /** Checks whether the path of this file represents the root of a file system,
-        irrespective of its existance.
+        irrespective of its existence.
 
         This will return true for "C:", "D:", etc on Windows and "/" on other
         platforms.
@@ -457,6 +465,9 @@ public:
         If this file is actually a directory, it may not be deleted correctly if it
         contains files. See deleteRecursively() as a better way of deleting directories.
 
+        If this file is a symlink, then the symlink will be deleted and not the target
+        of the symlink.
+
         @returns    true if the file has been successfully deleted (or if it didn't exist to
                     begin with).
         @see deleteRecursively
@@ -468,11 +479,14 @@ public:
         If this file is a directory, this will try to delete it and all its subfolders. If
         it's just a file, it will just try to delete the file.
 
-        @returns    true if the file and all its subfolders have been successfully deleted
-                    (or if it didn't exist to begin with).
+
+        @param followSymlinks If true, then any symlink pointing to a directory will also
+                              recursively delete the contents of that directory
+        @returns              true if the file and all its subfolders have been successfully
+                              deleted (or if it didn't exist to begin with).
         @see deleteFile
     */
-    bool deleteRecursively() const;
+    bool deleteRecursively (bool followSymlinks = false) const;
 
     /** Moves this file or folder to the trash.
 
@@ -560,7 +574,7 @@ public:
         @param wildCardPattern          the filename pattern to search for, e.g. "*.txt"
         @returns                        the set of files that were found
 
-        @see getNumberOfChildFiles, DirectoryIterator
+        @see getNumberOfChildFiles, RangedDirectoryIterator
     */
     Array<File> findChildFiles (int whatToLookFor,
                                 bool searchRecursively,
@@ -588,7 +602,8 @@ public:
                                 is also added to this value, hidden files won't be counted
         @param wildCardPattern  the filename pattern to search for, e.g. "*.txt"
         @returns                the number of matches found
-        @see findChildFiles, DirectoryIterator
+
+        @see findChildFiles, RangedDirectoryIterator
     */
     int getNumberOfChildFiles (int whatToLookFor,
                                const String& wildCardPattern = "*") const;
@@ -601,23 +616,55 @@ public:
     //==============================================================================
     /** Creates a stream to read from this file.
 
+        Note that this is an old method, and actually it's usually best to avoid it and
+        instead use an RAII pattern with an FileInputStream directly, e.g.
+        @code
+        FileInputStream input (fileToOpen);
+
+        if (input.openedOk())
+        {
+            input.read (etc...
+        }
+        @endcode
+
         @returns    a stream that will read from this file (initially positioned at the
                     start of the file), or nullptr if the file can't be opened for some reason
         @see createOutputStream, loadFileAsData
     */
-    FileInputStream* createInputStream() const;
+    std::unique_ptr<FileInputStream> createInputStream() const;
 
     /** Creates a stream to write to this file.
 
+        Note that this is an old method, and actually it's usually best to avoid it and
+        instead use an RAII pattern with an FileOutputStream directly, e.g.
+        @code
+        FileOutputStream output (fileToOpen);
+
+        if (output.openedOk())
+        {
+            output.read etc...
+        }
+        @endcode
+
         If the file exists, the stream that is returned will be positioned ready for
-        writing at the end of the file, so you might want to use deleteFile() first
-        to write to an empty file.
+        writing at the end of the file. If you want to write to the start of the file,
+        replacing the existing content, then you can do the following:
+        @code
+        FileOutputStream output (fileToOverwrite);
+
+        if (output.openedOk())
+        {
+            output.setPosition (0);
+            output.truncate();
+            ...
+        }
+        @endcode
 
         @returns    a stream that will write to this file (initially positioned at the
                     end of the file), or nullptr if the file can't be opened for some reason
         @see createInputStream, appendData, appendText
     */
-    FileOutputStream* createOutputStream (size_t bufferSize = 0x8000) const;
+    std::unique_ptr<FileOutputStream> createOutputStream (size_t bufferSize = 0x8000) const;
 
     //==============================================================================
     /** Loads a file's contents into memory as a block of binary data.

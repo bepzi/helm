@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -117,7 +116,7 @@ void ComponentBoundsConstrainer::setBoundsForComponent (Component* component,
         if (auto* peer = component->getPeer())
             border = peer->getFrameSize();
 
-        auto screenBounds = Desktop::getInstance().getDisplays().getDisplayContaining (targetBounds.getCentre()).userArea;
+        auto screenBounds = Desktop::getInstance().getDisplays().getDisplayForPoint (targetBounds.getCentre())->userArea;
 
         limits = component->getLocalArea (nullptr, screenBounds) + component->getPosition();
     }
@@ -271,23 +270,6 @@ void ComponentBoundsConstrainer::checkBounds (Rectangle<int>& bounds,
                 bounds.setHeight (jlimit (minH, maxH, bounds.getHeight()));
                 bounds.setWidth (roundToInt (bounds.getHeight() * aspectRatio));
             }
-        }
-
-        if ((isStretchingTop || isStretchingBottom) && ! (isStretchingLeft || isStretchingRight))
-        {
-            bounds.setX (old.getX() + (old.getWidth() - bounds.getWidth()) / 2);
-        }
-        else if ((isStretchingLeft || isStretchingRight) && ! (isStretchingTop || isStretchingBottom))
-        {
-            bounds.setY (old.getY() + (old.getHeight() - bounds.getHeight()) / 2);
-        }
-        else
-        {
-            if (isStretchingLeft)
-                bounds.setX (old.getRight() - bounds.getWidth());
-
-            if (isStretchingTop)
-                bounds.setY (old.getBottom() - bounds.getHeight());
         }
     }
 

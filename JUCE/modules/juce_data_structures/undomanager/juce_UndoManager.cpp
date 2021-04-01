@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -29,9 +28,7 @@ namespace juce
 
 struct UndoManager::ActionSet
 {
-    ActionSet (const String& transactionName)
-        : name (transactionName),
-          time (Time::getCurrentTime())
+    ActionSet (const String& transactionName)  : name (transactionName)
     {}
 
     bool perform() const
@@ -64,7 +61,7 @@ struct UndoManager::ActionSet
 
     OwnedArray<UndoableAction> actions;
     String name;
-    Time time;
+    Time time { Time::getCurrentTime() };
 };
 
 //==============================================================================
@@ -117,9 +114,9 @@ bool UndoManager::perform (UndoableAction* newAction)
     {
         std::unique_ptr<UndoableAction> action (newAction);
 
-        if (reentrancyCheck)
+        if (isPerformingUndoRedo())
         {
-            jassertfalse;  // don't call perform() recursively from the UndoableAction::perform()
+            jassertfalse;  // Don't call perform() recursively from the UndoableAction::perform()
                            // or undo() methods, or else these actions will be discarded!
             return false;
         }
@@ -148,7 +145,7 @@ bool UndoManager::perform (UndoableAction* newAction)
             }
 
             totalUnitsStored += action->getSizeInUnits();
-            actionSet->actions.add (action.release());
+            actionSet->actions.add (std::move (action));
             newTransaction = false;
 
             moveFutureTransactionsToStash();
@@ -209,18 +206,18 @@ void UndoManager::dropOldTransactionsIfTooLarge()
     }
 }
 
-void UndoManager::beginNewTransaction() noexcept
+void UndoManager::beginNewTransaction()
 {
     beginNewTransaction ({});
 }
 
-void UndoManager::beginNewTransaction (const String& actionName) noexcept
+void UndoManager::beginNewTransaction (const String& actionName)
 {
     newTransaction = true;
     newTransactionName = actionName;
 }
 
-void UndoManager::setCurrentTransactionName (const String& newName) noexcept
+void UndoManager::setCurrentTransactionName (const String& newName)
 {
     if (newTransaction)
         newTransactionName = newName;
@@ -228,7 +225,7 @@ void UndoManager::setCurrentTransactionName (const String& newName) noexcept
         action->name = newName;
 }
 
-String UndoManager::getCurrentTransactionName() const noexcept
+String UndoManager::getCurrentTransactionName() const
 {
     if (auto* action = getCurrentSet())
         return action->name;
@@ -237,17 +234,19 @@ String UndoManager::getCurrentTransactionName() const noexcept
 }
 
 //==============================================================================
-UndoManager::ActionSet* UndoManager::getCurrentSet() const noexcept     { return transactions[nextIndex - 1]; }
-UndoManager::ActionSet* UndoManager::getNextSet() const noexcept        { return transactions[nextIndex]; }
+UndoManager::ActionSet* UndoManager::getCurrentSet() const     { return transactions[nextIndex - 1]; }
+UndoManager::ActionSet* UndoManager::getNextSet() const        { return transactions[nextIndex]; }
 
-bool UndoManager::canUndo() const noexcept   { return getCurrentSet() != nullptr; }
-bool UndoManager::canRedo() const noexcept   { return getNextSet()    != nullptr; }
+bool UndoManager::isPerformingUndoRedo() const  { return isInsideUndoRedoCall; }
+
+bool UndoManager::canUndo() const      { return getCurrentSet() != nullptr; }
+bool UndoManager::canRedo() const      { return getNextSet()    != nullptr; }
 
 bool UndoManager::undo()
 {
     if (auto* s = getCurrentSet())
     {
-        const ScopedValueSetter<bool> setter (reentrancyCheck, true);
+        const ScopedValueSetter<bool> setter (isInsideUndoRedoCall, true);
 
         if (s->undo())
             --nextIndex;
@@ -266,7 +265,7 @@ bool UndoManager::redo()
 {
     if (auto* s = getNextSet())
     {
-        const ScopedValueSetter<bool> setter (reentrancyCheck, true);
+        const ScopedValueSetter<bool> setter (isInsideUndoRedoCall, true);
 
         if (s->perform())
             ++nextIndex;

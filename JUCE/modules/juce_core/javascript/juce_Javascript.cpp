@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -54,10 +54,7 @@ namespace TokenTypes
     JUCE_DECLARE_JS_TOKEN (identifier, "$identifier")
 }
 
-#if JUCE_MSVC
- #pragma warning (push)
- #pragma warning (disable: 4702)
-#endif
+JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4702)
 
 //==============================================================================
 struct JavascriptEngine::RootObject   : public DynamicObject
@@ -81,13 +78,13 @@ struct JavascriptEngine::RootObject   : public DynamicObject
     void execute (const String& code)
     {
         ExpressionTreeBuilder tb (code);
-        std::unique_ptr<BlockStatement> (tb.parseStatementList())->perform (Scope (nullptr, this, this), nullptr);
+        std::unique_ptr<BlockStatement> (tb.parseStatementList())->perform (Scope ({}, *this, *this), nullptr);
     }
 
     var evaluate (const String& code)
     {
         ExpressionTreeBuilder tb (code);
-        return ExpPtr (tb.parseExpression())->getResult (Scope (nullptr, this, this));
+        return ExpPtr (tb.parseExpression())->getResult (Scope ({}, *this, *this));
     }
 
     //==============================================================================
@@ -103,7 +100,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
     static bool isNumericOrUndefined (const var& v) noexcept  { return isNumeric (v) || v.isUndefined(); }
     static int64 getOctalValue (const String& s)              { BigInteger b; b.parseString (s.initialSectionContainingOnly ("01234567"), 8); return b.toInt64(); }
     static Identifier getPrototypeIdentifier()                { static const Identifier i ("prototype"); return i; }
-    static var* getPropertyPointer (DynamicObject* o, const Identifier& i) noexcept   { return o->getProperties().getVarPointer (i); }
+    static var* getPropertyPointer (DynamicObject& o, const Identifier& i) noexcept   { return o.getProperties().getVarPointer (i); }
 
     //==============================================================================
     struct CodeLocation
@@ -131,9 +128,11 @@ struct JavascriptEngine::RootObject   : public DynamicObject
     //==============================================================================
     struct Scope
     {
-        Scope (const Scope* p, RootObject* r, DynamicObject* s) noexcept : parent (p), root (r), scope (s) {}
+        Scope (const Scope* p, ReferenceCountedObjectPtr<RootObject> rt, DynamicObject::Ptr scp) noexcept
+            : parent (p), root (std::move (rt)),
+              scope (std::move (scp)) {}
 
-        const Scope* parent;
+        const Scope* const parent;
         ReferenceCountedObjectPtr<RootObject> root;
         DynamicObject::Ptr scope;
 
@@ -141,13 +140,13 @@ struct JavascriptEngine::RootObject   : public DynamicObject
         {
             if (auto* o = targetObject.getDynamicObject())
             {
-                if (auto* prop = getPropertyPointer (o, functionName))
+                if (auto* prop = getPropertyPointer (*o, functionName))
                     return *prop;
 
                 for (auto* p = o->getProperty (getPrototypeIdentifier()).getDynamicObject(); p != nullptr;
                      p = p->getProperty (getPrototypeIdentifier()).getDynamicObject())
                 {
-                    if (auto* prop = getPropertyPointer (p, functionName))
+                    if (auto* prop = getPropertyPointer (*p, functionName))
                         return *prop;
                 }
 
@@ -174,14 +173,14 @@ struct JavascriptEngine::RootObject   : public DynamicObject
         var* findRootClassProperty (const Identifier& className, const Identifier& propName) const
         {
             if (auto* cls = root->getProperty (className).getDynamicObject())
-                return getPropertyPointer (cls, propName);
+                return getPropertyPointer (*cls, propName);
 
             return nullptr;
         }
 
         var findSymbolInParentScopes (const Identifier& name) const
         {
-            if (auto* v = getPropertyPointer (scope, name))
+            if (auto v = getPropertyPointer (*scope, name))
                 return *v;
 
             return parent != nullptr ? parent->findSymbolInParentScopes (name)
@@ -192,9 +191,9 @@ struct JavascriptEngine::RootObject   : public DynamicObject
         {
             auto* target = args.thisObject.getDynamicObject();
 
-            if (target == nullptr || target == scope)
+            if (target == nullptr || target == scope.get())
             {
-                if (auto* m = getPropertyPointer (scope, function))
+                if (auto* m = getPropertyPointer (*scope, function))
                 {
                     if (auto fo = dynamic_cast<FunctionObject*> (m->getObject()))
                     {
@@ -208,7 +207,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
 
             for (int i = 0; i < props.size(); ++i)
                 if (auto* o = props.getValueAt (i).getDynamicObject())
-                    if (Scope (this, root, o).findAndInvokeMethod (function, args, result))
+                    if (Scope (this, *root, *o).findAndInvokeMethod (function, args, result))
                         return true;
 
             return false;
@@ -220,7 +219,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
             {
                 auto* target = args.thisObject.getDynamicObject();
 
-                if (target == nullptr || target == scope)
+                if (target == nullptr || target == scope.get())
                 {
                     if (auto fo = dynamic_cast<FunctionObject*> (m.getObject()))
                     {
@@ -238,6 +237,8 @@ struct JavascriptEngine::RootObject   : public DynamicObject
             if (Time::getCurrentTime() > root->timeout)
                 location.throwError (root->timeout == Time() ? "Interrupted" : "Execution timed-out");
         }
+
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Scope)
     };
 
     //==============================================================================
@@ -378,7 +379,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
 
         void assign (const Scope& s, const var& newValue) const override
         {
-            if (auto* v = getPropertyPointer (s.scope, name))
+            if (auto* v = getPropertyPointer (*s.scope, name))
                 *v = newValue;
             else
                 s.root->setProperty (name, newValue);
@@ -403,7 +404,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
             }
 
             if (auto* o = p.getDynamicObject())
-                if (auto* v = getPropertyPointer (o, child))
+                if (auto* v = getPropertyPointer (*o, child))
                     return *v;
 
             return var::undefined();
@@ -436,7 +437,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
 
             if (auto* o = arrayVar.getDynamicObject())
                 if (key.isString())
-                    if (auto* v = getPropertyPointer (o, Identifier (key)))
+                    if (auto* v = getPropertyPointer (*o, Identifier (key)))
                         return *v;
 
             return var::undefined();
@@ -593,7 +594,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
     {
         DivideOp (const CodeLocation& l, ExpPtr& a, ExpPtr& b) noexcept : BinaryOperator (l, a, b, TokenTypes::divide) {}
         var getWithDoubles (double a, double b) const override  { return b != 0 ? a / b : std::numeric_limits<double>::infinity(); }
-        var getWithInts (int64 a, int64 b) const override       { return b != 0 ? var (a / (double) b) : var (std::numeric_limits<double>::infinity()); }
+        var getWithInts (int64 a, int64 b) const override       { return b != 0 ? var ((double) a / (double) b) : var (std::numeric_limits<double>::infinity()); }
     };
 
     struct ModuloOp  : public BinaryOperator
@@ -812,7 +813,10 @@ struct JavascriptEngine::RootObject   : public DynamicObject
             for (int i = 0; i < values.size(); ++i)
                 a.add (values.getUnchecked(i)->getResult (s));
 
-            return a;
+            // std::move() needed here for older compilers
+            JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wredundant-move")
+            return std::move (a);
+            JUCE_END_IGNORE_WARNINGS_GCC_LIKE
         }
 
         OwnedArray<Expression> values;
@@ -829,7 +833,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
             tb.parseFunctionParamsAndBody (*this);
         }
 
-        DynamicObject::Ptr clone() override    { return new FunctionObject (*this); }
+        DynamicObject::Ptr clone() override    { return *new FunctionObject (*this); }
 
         void writeAsJSON (OutputStream& out, int /*indentLevel*/, bool /*allOnOneLine*/, int /*maximumDecimalPlaces*/) override
         {
@@ -936,7 +940,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
         {
             for (;;)
             {
-                p = p.findEndOfWhitespace();
+                p.incrementToEndOfWhitespace();
 
                 if (*p == '/')
                 {
@@ -1092,6 +1096,9 @@ struct JavascriptEngine::RootObject   : public DynamicObject
             if (matchIf (TokenTypes::assign))            { ExpPtr rhs (parseExpression()); return new Assignment (location, lhs, rhs); }
             if (matchIf (TokenTypes::plusEquals))        return parseInPlaceOpExpression<AdditionOp> (lhs);
             if (matchIf (TokenTypes::minusEquals))       return parseInPlaceOpExpression<SubtractionOp> (lhs);
+            if (matchIf (TokenTypes::timesEquals))       return parseInPlaceOpExpression<MultiplyOp> (lhs);
+            if (matchIf (TokenTypes::divideEquals))      return parseInPlaceOpExpression<DivideOp> (lhs);
+            if (matchIf (TokenTypes::moduloEquals))      return parseInPlaceOpExpression<ModuloOp> (lhs);
             if (matchIf (TokenTypes::leftShiftEquals))   return parseInPlaceOpExpression<LeftShiftOp> (lhs);
             if (matchIf (TokenTypes::rightShiftEquals))  return parseInPlaceOpExpression<RightShiftOp> (lhs);
 
@@ -1105,7 +1112,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
         Expression* parseInPlaceOpExpression (ExpPtr& lhs)
         {
             ExpPtr rhs (parseExpression());
-            Expression* bareLHS = lhs.get(); // careful - bare pointer is deliberately alised
+            Expression* bareLHS = lhs.get(); // careful - bare pointer is deliberately aliased
             return new SelfAssignment (location, bareLHS, new OpType (location, lhs, rhs));
         }
 
@@ -1176,7 +1183,7 @@ struct JavascriptEngine::RootObject   : public DynamicObject
             if (matchIf (TokenTypes::comma))
             {
                 std::unique_ptr<BlockStatement> block (new BlockStatement (location));
-                block->statements.add (s.release());
+                block->statements.add (std::move (s));
                 block->statements.add (parseVar());
                 return block.release();
             }
@@ -1618,7 +1625,10 @@ struct JavascriptEngine::RootObject   : public DynamicObject
                 for (int i = 2; i < a.numArguments; ++i)
                     array->insert (start++, get (a, i));
 
-                return itemsRemoved;
+                // std::move() needed here for older compilers
+                JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wredundant-move")
+                return std::move (itemsRemoved);
+                JUCE_END_IGNORE_WARNINGS_GCC_LIKE
             }
 
             return var::undefined();
@@ -1862,13 +1872,13 @@ var JavascriptEngine::evaluate (const String& code, Result* result)
 
 var JavascriptEngine::callFunction (const Identifier& function, const var::NativeFunctionArgs& args, Result* result)
 {
-    var returnVal (var::undefined());
+    auto returnVal = var::undefined();
 
     try
     {
         prepareTimeout();
         if (result != nullptr) *result = Result::ok();
-        RootObject::Scope (nullptr, root, root).findAndInvokeMethod (function, args, returnVal);
+        RootObject::Scope ({}, *root, *root).findAndInvokeMethod (function, args, returnVal);
     }
     catch (String& error)
     {
@@ -1881,14 +1891,15 @@ var JavascriptEngine::callFunction (const Identifier& function, const var::Nativ
 var JavascriptEngine::callFunctionObject (DynamicObject* objectScope, const var& functionObject,
                                           const var::NativeFunctionArgs& args, Result* result)
 {
-    var returnVal (var::undefined());
+    auto returnVal = var::undefined();
 
     try
     {
         prepareTimeout();
         if (result != nullptr) *result = Result::ok();
-        RootObject::Scope rootScope (nullptr, root, root);
-        RootObject::Scope (&rootScope, root, objectScope).invokeMethod (functionObject, args, returnVal);
+        RootObject::Scope rootScope ({}, *root, *root);
+        RootObject::Scope (&rootScope, *root, DynamicObject::Ptr (objectScope))
+            .invokeMethod (functionObject, args, returnVal);
     }
     catch (String& error)
     {
@@ -1903,8 +1914,6 @@ const NamedValueSet& JavascriptEngine::getRootObjectProperties() const noexcept
     return root->getProperties();
 }
 
-#if JUCE_MSVC
- #pragma warning (pop)
-#endif
+JUCE_END_IGNORE_WARNINGS_MSVC
 
 } // namespace juce

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -71,8 +70,9 @@ public:
                                                         performAnyPendingRepaintsNow() method is called. */
         windowIgnoresKeyPresses     = (1 << 10),   /**< Tells the window not to catch any keypresses. This can
                                                         be used for things like plugin windows, to stop them interfering
-                                                        with the host's shortcut keys */
-        windowIsSemiTransparent     = (1 << 31)    /**< Not intended for public use - makes a window transparent. */
+                                                        with the host's shortcut keys. This will prevent the window from
+                                                        gaining keyboard focus. */
+        windowIsSemiTransparent     = (1 << 30)    /**< Not intended for public use - makes a window transparent. */
 
     };
 
@@ -167,6 +167,12 @@ public:
 
     /** Converts a screen area to a position relative to the top-left of this component. */
     virtual Rectangle<int> globalToLocal (const Rectangle<int>& screenPosition);
+
+    /** Converts a rectangle relative to the top-left of this component to screen coordinates. */
+    Rectangle<float> localToGlobal (const Rectangle<float>& relativePosition);
+
+    /** Converts a screen area to a position relative to the top-left of this component. */
+    Rectangle<float> globalToLocal (const Rectangle<float>& screenPosition);
 
     /** Returns the area in peer coordinates that is covered by the given sub-comp (which
         may be at any depth)
@@ -315,7 +321,7 @@ public:
 
     //==============================================================================
     void handleMouseEvent (MouseInputSource::InputSourceType type, Point<float> positionWithinPeer, ModifierKeys newMods, float pressure,
-                           float orientation, int64 time, PenDetails pen = {}, int touchIndex = 0);
+                           float orientation, int64 time, PenDetails pen = PenDetails(), int touchIndex = 0);
 
     void handleMouseWheel (MouseInputSource::InputSourceType type, Point<float> positionWithinPeer,
                            int64 time, const MouseWheelDetails&, int touchIndex = 0);
@@ -377,22 +383,57 @@ public:
     */
     static ModifierKeys getCurrentModifiersRealtime() noexcept;
 
+    //==============================================================================
+    /**  Used to receive callbacks when the OS scale factor of this ComponentPeer changes.
+
+         This is used internally by some native JUCE windows on Windows and Linux and you
+         shouldn't need to worry about it in your own code unless you are dealing directly
+         with native windows.
+    */
+    struct JUCE_API  ScaleFactorListener
+    {
+        /** Destructor. */
+        virtual ~ScaleFactorListener() = default;
+
+        /** Called when the scale factor changes. */
+        virtual void nativeScaleFactorChanged (double newScaleFactor) = 0;
+    };
+
+    /** Adds a scale factor listener. */
+    void addScaleFactorListener (ScaleFactorListener* listenerToAdd)          { scaleFactorListeners.add (listenerToAdd); }
+
+    /** Removes a scale factor listener. */
+    void removeScaleFactorListener (ScaleFactorListener* listenerToRemove)    { scaleFactorListeners.remove (listenerToRemove);  }
+
+    //==============================================================================
+    /** On Windows and Linux this will return the OS scaling factor currently being applied
+        to the native window. This is used to convert between physical and logical pixels
+        at the OS API level and you shouldn't need to use it in your own code unless you
+        are dealing directly with the native window.
+    */
+    virtual double getPlatformScaleFactor() const noexcept    { return 1.0; }
+
 protected:
     //==============================================================================
+    static void forceDisplayUpdate();
+
     Component& component;
     const int styleFlags;
     Rectangle<int> lastNonFullscreenBounds;
     ComponentBoundsConstrainer* constrainer = nullptr;
     static std::function<ModifierKeys()> getNativeRealtimeModifiers;
+    ListenerList<ScaleFactorListener> scaleFactorListeners;
 
 private:
     //==============================================================================
+    Component* getTargetForKeyPress();
+
     WeakReference<Component> lastFocusedComponent, dragAndDropTargetComponent;
     Component* lastDragAndDropCompUnderMouse = nullptr;
     const uint32 uniqueID;
     bool isWindowMinimised = false;
-    Component* getTargetForKeyPress();
 
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ComponentPeer)
 };
 

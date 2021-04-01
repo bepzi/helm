@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -52,7 +51,7 @@ public:
                  Colour downColour);
 
     /** Destructor. */
-    ~ShapeButton();
+    ~ShapeButton() override;
 
     //==============================================================================
     /** Sets the shape to use.
@@ -89,6 +88,8 @@ public:
                        Colour overColourOn,
                        Colour downColourOn);
 
+    void setShadowColour (Colour shadow) { shadowColour = shadow; }
+
     /** Set whether the button should use the 'on' set of colours when its toggle state is 'on'.
         By default these will be the same as the normal colours but the setOnColours method can be
         used to provide a different set of colours.
@@ -108,14 +109,13 @@ public:
     void setBorderSize (BorderSize<int> border);
 
     /** @internal */
-    void paintButton (Graphics&, bool isMouseOverButton, bool isButtonDown) override;
+    void paintButton (Graphics&, bool, bool) override;
 
 private:
     //==============================================================================
     Colour normalColour,   overColour,   downColour,
-           normalColourOn, overColourOn, downColourOn, outlineColour;
+           normalColourOn, overColourOn, downColourOn, outlineColour, shadowColour;
     bool useOnColours;
-    DropShadowEffect shadow;
     Path shape;
     BorderSize<int> border;
     bool maintainShapeProportions;

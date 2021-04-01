@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -111,17 +110,17 @@ struct CachedImageList  : public ReferenceCountedObject,
         {
             TextureInfo t;
 
-            if (textureNeedsReloading)
+            if (textureNeedsReloading && pixelData != nullptr)
             {
                 textureNeedsReloading = false;
-                texture.loadImage (Image (pixelData));
+                texture.loadImage (Image (*pixelData));
             }
 
             t.textureID = texture.getTextureID();
             t.imageWidth = pixelData->width;
             t.imageHeight = pixelData->height;
-            t.fullWidthProportion  = t.imageWidth  / (float) texture.getWidth();
-            t.fullHeightProportion = t.imageHeight / (float) texture.getHeight();
+            t.fullWidthProportion  = (float) t.imageWidth  / (float) texture.getWidth();
+            t.fullHeightProportion = (float) t.imageHeight / (float) texture.getHeight();
 
             lastUsed = Time::getCurrentTime();
             return t;
@@ -422,7 +421,7 @@ struct ShaderPrograms  : public ReferenceCountedObject
 
         void bindAttributes (OpenGLContext& context)
         {
-            context.extensions.glVertexAttribPointer ((GLuint) positionAttribute.attributeID, 2, GL_SHORT, GL_FALSE, 8, (void*) 0);
+            context.extensions.glVertexAttribPointer ((GLuint) positionAttribute.attributeID, 2, GL_SHORT, GL_FALSE, 8, nullptr);
             context.extensions.glVertexAttribPointer ((GLuint) colourAttribute.attributeID, 4, GL_UNSIGNED_BYTE, GL_TRUE, 8, (void*) 4);
             context.extensions.glEnableVertexAttribArray ((GLuint) positionAttribute.attributeID);
             context.extensions.glEnableVertexAttribArray ((GLuint) colourAttribute.attributeID);
@@ -436,7 +435,7 @@ struct ShaderPrograms  : public ReferenceCountedObject
 
         OpenGLShaderProgram::Attribute positionAttribute, colourAttribute;
         OpenGLShaderProgram::Uniform screenBounds;
-        std::function<void(OpenGLShaderProgram&)> onShaderActivated;
+        std::function<void (OpenGLShaderProgram&)> onShaderActivated;
     };
 
     struct MaskedShaderParams
@@ -647,16 +646,16 @@ struct ShaderPrograms  : public ReferenceCountedObject
                         float targetX, float targetY, bool isForTiling) const
         {
             auto t = trans.translated (-targetX, -targetY)
-                          .inverted().scaled (fullWidthProportion / imageWidth,
-                                              fullHeightProportion / imageHeight);
+                          .inverted().scaled (fullWidthProportion  / (float) imageWidth,
+                                              fullHeightProportion / (float) imageHeight);
 
             const GLfloat m[] = { t.mat00, t.mat01, t.mat02, t.mat10, t.mat11, t.mat12 };
             matrix.set (m, 6);
 
             if (isForTiling)
             {
-                fullWidthProportion -= 0.5f / imageWidth;
-                fullHeightProportion -= 0.5f / imageHeight;
+                fullWidthProportion  -= 0.5f / (float) imageWidth;
+                fullHeightProportion -= 0.5f / (float) imageHeight;
             }
 
             imageLimits.set (fullWidthProportion, fullHeightProportion);
@@ -1279,7 +1278,7 @@ struct StateHelpers
             context.extensions.glBufferSubData (GL_ARRAY_BUFFER, 0, (GLsizeiptr) ((size_t) numVertices * sizeof (VertexInfo)), vertexData);
             // NB: If you get a random crash in here and are running in a Parallels VM, it seems to be a bug in
             // their driver.. Can't find a workaround unfortunately.
-            glDrawElements (GL_TRIANGLES, (numVertices * 3) / 2, GL_UNSIGNED_SHORT, 0);
+            glDrawElements (GL_TRIANGLES, (numVertices * 3) / 2, GL_UNSIGNED_SHORT, nullptr);
             JUCE_CHECK_OPENGL_ERROR
             numVertices = 0;
         }
@@ -1298,7 +1297,7 @@ struct StateHelpers
             if (programs == nullptr)
             {
                 programs = new ShaderPrograms (context);
-                context.setAssociatedObject (programValueID, programs);
+                context.setAssociatedObject (programValueID, programs.get());
             }
         }
 
@@ -1423,14 +1422,14 @@ struct GLState
             textureCache.bindTextureForGradient (activeTextures, g);
         }
 
-        auto t = transform.translated (0.5f - target.bounds.getX(),
-                                       0.5f - target.bounds.getY());
+        auto t = transform.translated (0.5f - (float) target.bounds.getX(),
+                                       0.5f - (float) target.bounds.getY());
         auto p1 = g.point1.transformedBy (t);
         auto p2 = g.point2.transformedBy (t);
         auto p3 = Point<float> (g.point1.x + (g.point2.y - g.point1.y),
                                 g.point1.y - (g.point2.x - g.point1.x)).transformedBy (t);
 
-        ShaderPrograms* const programs = currentShader.programs;
+        auto programs = currentShader.programs;
         const ShaderPrograms::MaskedShaderParams* maskParams = nullptr;
 
         if (g.isRadial)
@@ -1507,7 +1506,7 @@ struct GLState
     {
         blendMode.setPremultipliedBlendingMode (shaderQuadQueue);
 
-        ShaderPrograms* const programs = currentShader.programs;
+        auto programs = currentShader.programs;
 
         const ShaderPrograms::MaskedShaderParams* maskParams = nullptr;
         const ShaderPrograms::ImageParams* imageParams;
@@ -1660,7 +1659,7 @@ struct SavedState  : public RenderingHelpers::SavedStateBase<SavedState>
                 const std::unique_ptr<EdgeTable> et (font.getTypeface()->getEdgeTableForGlyph (glyphNumber, t, fontHeight));
 
                 if (et != nullptr)
-                    fillShape (new EdgeTableRegionType (*et), false);
+                    fillShape (*new EdgeTableRegionType (*et), false);
             }
         }
     }
@@ -1804,31 +1803,31 @@ static void clearOpenGLGlyphCacheCallback()
     SavedState::GlyphCacheType::getInstance().reset();
 }
 
-static LowLevelGraphicsContext* createOpenGLContext (const Target& target)
+static std::unique_ptr<LowLevelGraphicsContext> createOpenGLContext (const Target& target)
 {
     clearOpenGLGlyphCache = clearOpenGLGlyphCacheCallback;
 
     if (target.context.areShadersAvailable())
-        return new ShaderContext (target);
+        return std::make_unique<ShaderContext> (target);
 
     Image tempImage (Image::ARGB, target.bounds.getWidth(), target.bounds.getHeight(), true, SoftwareImageType());
-    return new NonShaderContext (target, tempImage);
+    return std::make_unique<NonShaderContext> (target, tempImage);
 }
 
 }
 
 //==============================================================================
-LowLevelGraphicsContext* createOpenGLGraphicsContext (OpenGLContext& context, int width, int height)
+std::unique_ptr<LowLevelGraphicsContext> createOpenGLGraphicsContext (OpenGLContext& context, int width, int height)
 {
     return createOpenGLGraphicsContext (context, context.getFrameBufferID(), width, height);
 }
 
-LowLevelGraphicsContext* createOpenGLGraphicsContext (OpenGLContext& context, OpenGLFrameBuffer& target)
+std::unique_ptr<LowLevelGraphicsContext> createOpenGLGraphicsContext (OpenGLContext& context, OpenGLFrameBuffer& target)
 {
     return OpenGLRendering::createOpenGLContext (OpenGLRendering::Target (context, target, {}));
 }
 
-LowLevelGraphicsContext* createOpenGLGraphicsContext (OpenGLContext& context, unsigned int frameBufferID, int width, int height)
+std::unique_ptr<LowLevelGraphicsContext> createOpenGLGraphicsContext (OpenGLContext& context, unsigned int frameBufferID, int width, int height)
 {
     return OpenGLRendering::createOpenGLContext (OpenGLRendering::Target (context, frameBufferID, width, height));
 }
@@ -1842,18 +1841,19 @@ struct CustomProgram  : public ReferenceCountedObject,
     {
     }
 
-    static CustomProgram* get (const String& hashName)
+    static ReferenceCountedObjectPtr<CustomProgram> get (const String& hashName)
     {
         if (auto* c = OpenGLContext::getCurrentContext())
-            return static_cast<CustomProgram*> (c->getAssociatedObject (hashName.toRawUTF8()));
+            if (auto* o = c->getAssociatedObject (hashName.toRawUTF8()))
+                return *static_cast<CustomProgram*> (o);
 
-        return nullptr;
+        return {};
     }
 
-    static CustomProgram* getOrCreate (LowLevelGraphicsContext& gc, const String& hashName,
-                                       const String& code, String& errorMessage)
+    static ReferenceCountedObjectPtr<CustomProgram> getOrCreate (LowLevelGraphicsContext& gc, const String& hashName,
+                                                                 const String& code, String& errorMessage)
     {
-        if (auto* c = get (hashName))
+        if (auto c = get (hashName))
             return c;
 
         if (auto* sc = dynamic_cast<OpenGLRendering::ShaderContext*> (&gc))
@@ -1865,7 +1865,7 @@ struct CustomProgram  : public ReferenceCountedObject,
             {
                 if (auto context = OpenGLContext::getCurrentContext())
                 {
-                    context->setAssociatedObject (hashName.toRawUTF8(), c);
+                    context->setAssociatedObject (hashName.toRawUTF8(), c.get());
                     return c;
                 }
             }
