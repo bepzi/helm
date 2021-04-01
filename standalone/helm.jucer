@@ -2,9 +2,9 @@
 
 <JUCERPROJECT id="GfsdNK" name="Helm" projectType="guiapp" version="0.9.0"
               bundleIdentifier="org.tytel.helm" includeBinaryInAppConfig="1"
-              jucerVersion="5.3.2" companyName="Matt Tytel" companyWebsite="tytel.org"
-              companyEmail="matthewtytel@gmail.com" defines="" displaySplashScreen="1"
-              reportAppUsage="1" splashScreenColour="Dark">
+              companyName="Matt Tytel" companyWebsite="tytel.org" companyEmail="matthewtytel@gmail.com"
+              defines="" displaySplashScreen="0" reportAppUsage="1" splashScreenColour="Dark"
+              jucerFormatVersion="1">
   <MAINGROUP id="CeypXq" name="Helm">
     <GROUP id="{F9396290-DE03-305A-7B02-8F0D1833F92B}" name="concurrentqueue">
       <FILE id="t3qQ5F" name="blockingconcurrentqueue.h" compile="0" resource="0"
@@ -516,7 +516,7 @@
     <LINUX_MAKE targetFolder="builds/linux" bigIcon="JqKIEw" smallIcon="oFf3hH"
                 extraCompilerFlags="$(DEBCXXFLAGS) -ffast-math $(SIMDFLAGS) -ftree-vectorize -ftree-slp-vectorize "
                 extraLinkerFlags="$(DEBLDFLAGS) -ffast-math $(SIMDFLAGS) -ftree-vectorize -ftree-slp-vectorize "
-                extraDefs="JUCE_JACK_CLIENT_NAME=\&quot;Helm\&quot;,&#10;JUCE_ALSA_MIDI_INPUT_NAME=\&quot;Helm\&quot;&#10;JUCE_ALSA_MIDI_OUTPUT_NAME=\&quot;Helm\&quot;&#10;JUCE_USE_XRANDR=0">
+                extraDefs="JUCE_JACK_CLIENT_NAME=&quot;Helm&quot;,&#10;JUCE_ALSA_MIDI_INPUT_NAME=&quot;Helm&quot;&#10;JUCE_ALSA_MIDI_OUTPUT_NAME=&quot;Helm&quot;&#10;JUCE_USE_XRANDR=0">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="helm" headerPath="../../../concurrentqueue&#10;../../../mopo/src&#10;../../../src&#10;../../../src/common&#10;../../../src/editor_components&#10;../../../src/editor_sections&#10;../../../src/look_and_feel&#10;../../../src/standalone&#10;../../../src/synthesis"
@@ -582,8 +582,9 @@
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0"/>
   </MODULES>
   <JUCEOPTIONS JUCE_WASAPI="1" JUCE_DIRECTSOUND="1" JUCE_ALSA="1" JUCE_JACK="1"
-               JUCE_WEB_BROWSER="0"/>
+               JUCE_WEB_BROWSER="0" JUCE_USE_CURL="0"/>
   <LIVE_SETTINGS>
     <OSX/>
+    <LINUX/>
   </LIVE_SETTINGS>
 </JUCERPROJECT>
