@@ -53,8 +53,9 @@ FullInterface::FullInterface(mopo::control_map controls, mopo::output_map modula
   createModulationSliders(modulation_sources, mono_modulations, poly_modulations);
 
   logo_button_ = new ImageButton("logo_button");
-  const Desktop::Displays::Display& display = Desktop::getInstance().getDisplays().getMainDisplay();
-  if (display.scale > 1.5) {
+  auto *display = Desktop::getInstance().getDisplays().getPrimaryDisplay();
+  jassert(display != nullptr);
+  if (display->scale > 1.5) {
     Image helm = ImageCache::getFromMemory(BinaryData::helm_icon_128_2x_png,
                                            BinaryData::helm_icon_128_2x_pngSize);
     logo_button_->setImages(true, true, false,
@@ -292,8 +293,10 @@ void FullInterface::animate(bool animate) {
 }
 
 void FullInterface::checkBackground() {
-  const Desktop::Displays::Display& display = Desktop::getInstance().getDisplays().getMainDisplay();
-  float scale = display.scale;
+  auto *display = Desktop::getInstance().getDisplays().getPrimaryDisplay();
+  jassert(display != nullptr);
+
+  float scale = display->scale;
   int width = scale * getWidth();
   int height = scale * getHeight();
 
