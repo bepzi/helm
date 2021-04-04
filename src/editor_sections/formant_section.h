@@ -18,7 +18,7 @@
 #ifndef FORMANT_SECTION_H
 #define FORMANT_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_button.h"
 #include "synth_section.h"
 #include "xy_pad.h"

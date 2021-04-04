@@ -18,7 +18,7 @@
 #ifndef GLOBAL_TOOL_TIP_H
 #define GLOBAL_TOOL_TIP_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 class GlobalToolTip  : public Component, public Timer {
   public:

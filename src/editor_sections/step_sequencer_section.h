@@ -18,7 +18,7 @@
 #ifndef STEP_SEQUENCER_SECTION_H
 #define STEP_SEQUENCER_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "retrigger_selector.h"
 #include "synth_section.h"
 #include "tempo_selector.h"

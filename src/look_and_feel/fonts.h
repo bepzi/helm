@@ -17,7 +17,7 @@
 #ifndef FONTS_H
 #define FONTS_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 class Fonts {
   public:

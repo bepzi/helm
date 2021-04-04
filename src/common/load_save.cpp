@@ -15,7 +15,7 @@
  */
 
 #include "load_save.h"
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "helm_common.h"
 #include "midi_manager.h"
 #include "synth_base.h"

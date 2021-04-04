@@ -17,7 +17,7 @@
 #ifndef MODULATION_METER_H
 #define MODULATION_METER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "processor.h"
 #include "synth_slider.h"
 

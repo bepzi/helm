@@ -17,7 +17,7 @@
 #ifndef FILTER_SELECTOR_H
 #define FILTER_SELECTOR_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_slider.h"
 
 class FilterSelector : public SynthSlider {

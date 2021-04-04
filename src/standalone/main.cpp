@@ -14,7 +14,7 @@
  * along with helm.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "border_bounds_constrainer.h"
 #include "helm_editor.h"
 #include "load_save.h"

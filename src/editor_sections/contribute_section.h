@@ -18,7 +18,7 @@
 #ifndef CONTRIBUTE_SECTION_H
 #define CONTRIBUTE_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "overlay.h"
 
 class CustomAmountEditor : public TextEditor {

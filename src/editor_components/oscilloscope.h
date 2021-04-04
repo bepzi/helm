@@ -18,7 +18,7 @@
 #ifndef OSCILLOSCOPE_H
 #define OSCILLOSCOPE_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "memory.h"
 
 class Oscilloscope : public Component, public Timer {

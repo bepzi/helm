@@ -18,7 +18,7 @@
 #ifndef OPEN_GL_BACKGROUND_H
 #define OPEN_GL_BACKGROUND_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 class OpenGLBackground {
   public:

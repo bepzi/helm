@@ -17,7 +17,7 @@
 #ifndef TEXT_SELECTOR_H
 #define TEXT_SELECTOR_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_slider.h"
 
 class TextSelector : public SynthSlider {

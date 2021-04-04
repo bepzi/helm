@@ -16,7 +16,7 @@
 
 #include "startup.h"
 #include "load_save.h"
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_base.h"
 
 #define OLD_LINUX_USER_BANK_DIRECTORY "~/.helm/User Patches"

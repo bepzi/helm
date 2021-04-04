@@ -18,7 +18,7 @@
 #ifndef OPEN_GL_OSCILLOSCOPE_H
 #define OPEN_GL_OSCILLOSCOPE_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 #include "memory.h"
 #include "open_gl_component.h"

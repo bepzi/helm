@@ -18,7 +18,7 @@
 #ifndef STUTTER_SECTION_H
 #define STUTTER_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_button.h"
 #include "synth_section.h"
 #include "synth_slider.h"

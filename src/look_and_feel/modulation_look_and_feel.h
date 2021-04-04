@@ -17,7 +17,7 @@
 #ifndef MODULATION_LOOK_AND_FEEL_H
 #define MODULATION_LOOK_AND_FEEL_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 class SynthSlider;
 

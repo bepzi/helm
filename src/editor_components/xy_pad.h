@@ -18,7 +18,7 @@
 #ifndef XY_PAD_H
 #define XY_PAD_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_slider.h"
 
 class XYPad : public Component, public SynthSlider::SliderListener {

@@ -18,7 +18,7 @@
 #ifndef NOISE_SECTION_H
 #define NOISE_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_section.h"
 #include "synth_slider.h"
 

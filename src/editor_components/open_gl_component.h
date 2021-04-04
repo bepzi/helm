@@ -18,7 +18,7 @@
 #ifndef OPEN_GL_COMPONENT_H
 #define OPEN_GL_COMPONENT_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 class OpenGLComponent : public Component {
   public:

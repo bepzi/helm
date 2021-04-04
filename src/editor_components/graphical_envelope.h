@@ -18,7 +18,7 @@
 #ifndef GRAPHICAL_ENVELOPE_H
 #define GRAPHICAL_ENVELOPE_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "helm_common.h"
 #include "synth_slider.h"
 

@@ -17,7 +17,7 @@
 #ifndef HELM_EDITOR_H
 #define HELM_EDITOR_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 #include "full_interface.h"
 #include "memory.h"

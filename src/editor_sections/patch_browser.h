@@ -18,7 +18,7 @@
 #ifndef PATCH_BROWSER_H
 #define PATCH_BROWSER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "delete_section.h"
 #include "file_list_box_model.h"
 #include "overlay.h"

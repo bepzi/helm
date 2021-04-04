@@ -17,7 +17,7 @@
 #ifndef TEXT_SLIDER_H
 #define TEXT_SLIDER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_slider.h"
 
 class TextSlider : public SynthSlider {

@@ -18,7 +18,7 @@
 #ifndef SYNTH_SECTION_H
 #define SYNTH_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "modulation_button.h"
 #include "helm_common.h"
 #include "synth_button.h"

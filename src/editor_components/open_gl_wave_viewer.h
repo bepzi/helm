@@ -18,7 +18,7 @@
 #ifndef OPEN_GL_WAVE_VIEWER_H
 #define OPEN_GL_WAVE_VIEWER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 #include "helm_common.h"
 #include "open_gl_background.h"

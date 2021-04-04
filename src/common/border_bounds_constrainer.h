@@ -18,7 +18,7 @@
 #ifndef BORDER_BOUNDS_CONSTRAINER_H
 #define BORDER_BOUNDS_CONSTRAINER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "delete_section.h"
 
 class BorderBoundsConstrainer : public ComponentBoundsConstrainer {

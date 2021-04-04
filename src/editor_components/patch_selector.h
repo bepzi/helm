@@ -18,7 +18,7 @@
 #ifndef PATCH_SELECTOR_H
 #define PATCH_SELECTOR_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "patch_browser.h"
 #include "synth_section.h"
 

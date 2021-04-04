@@ -17,7 +17,7 @@
 #ifndef SYNTH_BASE_H
 #define SYNTH_BASE_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "concurrentqueue.h"
 
 #include "helm_common.h"

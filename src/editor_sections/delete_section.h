@@ -18,7 +18,7 @@
 #ifndef DELETE_SECTION_H
 #define DELETE_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "overlay.h"
 
 class DeleteSection : public Overlay, public Button::Listener {

@@ -18,7 +18,7 @@
 #ifndef FILE_LIST_BOX_MODEL_H
 #define FILE_LIST_BOX_MODEL_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "delete_section.h"
 
 class FileListBoxModel : public ListBoxModel {
