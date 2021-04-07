@@ -10,16 +10,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # It's "bad form" to set this globally, but it's convenient.
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(cxx_clang $<CXX_COMPILER_ID:Clang,AppleClang,IntelClang,ARMClang>)
-set(cxx_gcc $<CXX_COMPILER_ID:GNU>)
-set(cxx_msvc $<CXX_COMPILER_ID:MSVC>)
-
-set(cxx_optimizations
-  $<$<AND:$<CONFIG:Debug>,$<OR:${cxx_gcc},${cxx_clang}>>:-Og -ggdb3>
-  $<$<AND:$<NOT:$<CONFIG:Debug>>,$<OR:${cxx_gcc},${cxx_clang}>>:-Ofast -ffast-math -ftree-vectorize -ftree-slp-vectorize>
-  $<$<AND:$<CONFIG:Debug>,${cxx_msvc}>:/Od /DEBUG>
-  $<$<AND:$<NOT:$<CONFIG:Debug>>,${cxx_msvc}>:/Ot /Oi>)
-
 # ==================================================
 
 add_subdirectory(concurrentqueue)
@@ -50,10 +40,10 @@ juce_add_binary_data(HelmData SOURCES
   images/modulation_unselected_inactive_1x.png
   images/modulation_unselected_inactive_2x.png)
 
-# TODO: Use the original standalone code
 # TODO: Fix VST2 and LV2 plugin formats
-# TODO: Figure out why the standalone is broken
-# TODO: Figure out why VST3 is so slow
+# TODO: Figure out why everything is sluggish even in Release mode
+# (Note that VST3 is just unnaturally slow on my system)
+# TODO: Fix "redefinition of JUCE_STANDALONE_APPLICATION"
 # TODO: Re-enable recommended compiler warnings
 
 # ==================================================
@@ -71,7 +61,7 @@ juce_add_plugin(HelmPlugin
   PRODUCT_NAME "helm"
   COMPANY_NAME "Matt Tytel"
   PLUGIN_MANUFACTURER_CODE "Tyte"
-  FORMATS VST3 AU Standalone # LV2 VST
+  FORMATS VST3 AU # LV2 VST
 
   # LV2_URI https://github.com/bepzi/helm
   )
@@ -172,7 +162,7 @@ target_sources(HelmPlugin PRIVATE
   src/synthesis/trigger_random.cpp
   src/synthesis/value_switch.cpp)
 
-target_include_directories(HelmPlugin PRIVATE
+target_include_directories(HelmPlugin PUBLIC
   src/common
   src/editor_components
   src/editor_sections
@@ -180,21 +170,21 @@ target_include_directories(HelmPlugin PRIVATE
   src/plugin
   src/synthesis)
 
-target_compile_options(HelmPlugin PUBLIC
-  ${cxx_optimizations})
-
 target_compile_definitions(HelmPlugin PUBLIC
   JUCE_DISPLAY_SPLASH_SCREEN=0
   JUCE_REPORT_APP_USAGE=0
   JUCE_VST3_CAN_REPLACE_VST2=0
+  JUCE_QUICKTIME="disabled"
   JUCE_WEB_BROWSER=0
-  JUCE_USE_CURL=0)
+  JUCE_USE_CURL=0
+  JUCE_USE_XRANDR=0)
 
 target_link_libraries(HelmPlugin
-  PRIVATE
+  PUBLIC
     HelmData
     concurrentqueue
     mopo
+
     juce::juce_audio_basics
     juce::juce_audio_devices
     juce::juce_audio_formats
@@ -208,7 +198,43 @@ target_link_libraries(HelmPlugin
     juce::juce_gui_basics
     juce::juce_gui_extra
     juce::juce_opengl
-  PUBLIC
+
+    juce::juce_recommended_config_flags
+    juce::juce_recommended_lto_flags
+    # juce::juce_recommended_warning_flags
+    )
+
+# ==================================================
+
+juce_add_gui_app(HelmStandalone
+  ICON_BIG images/helm_icon_512_2x.png
+  ICON_SMALL images/helm_icon_128_2x.png
+
+  PRODUCT_NAME "helm"
+  COMPANY_NAME "Matt Tytel")
+
+juce_generate_juce_header(HelmStandalone)
+
+target_sources(HelmStandalone PRIVATE
+  src/standalone/helm_editor.cpp
+  src/standalone/helm_computer_keyboard.cpp
+  src/standalone/main.cpp)
+
+target_include_directories(HelmStandalone PRIVATE
+  src/standalone)
+
+target_compile_definitions(HelmStandalone PRIVATE
+  JUCE_WASAPI=1
+  JUCE_DIRECTSOUND=1
+  JUCE_ALSA=1
+  JUCE_JACK=1
+  JUCE_JACK_CLIENT_NAME="Helm"
+  JUCE_ALSA_MIDI_INPUT_NAME="Helm"
+  JUCE_ALSA_MIDI_OUTPUT_NAME="Helm")
+
+target_link_libraries(HelmStandalone
+  PRIVATE
+    HelmPlugin
     juce::juce_recommended_config_flags
     juce::juce_recommended_lto_flags
     # juce::juce_recommended_warning_flags
