@@ -18,7 +18,7 @@
 #ifndef ABOUT_SECTION_H
 #define ABOUT_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "overlay.h"
 
 class AboutSection : public Overlay, public Button::Listener {

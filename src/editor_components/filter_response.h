@@ -18,7 +18,7 @@
 #ifndef FILTER_RESPONSE_H
 #define FILTER_RESPONSE_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "helm_common.h"
 #include "biquad_filter.h"
 #include "state_variable_filter.h"

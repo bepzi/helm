@@ -17,7 +17,7 @@
 #ifndef TEMPO_SELECTOR_H
 #define TEMPO_SELECTOR_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_slider.h"
 
 class TempoSelector : public SynthSlider {

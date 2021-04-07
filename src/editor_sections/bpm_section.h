@@ -18,7 +18,7 @@
 #ifndef BPM_SECTION_H
 #define BPM_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_section.h"
 #include "synth_slider.h"
 

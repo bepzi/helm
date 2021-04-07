@@ -18,7 +18,7 @@
 #ifndef MIDI_KEYBOARD_H
 #define MIDI_KEYBOARD_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 class MidiKeyboard : public MidiKeyboardComponent {
   public:

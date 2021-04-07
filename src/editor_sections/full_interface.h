@@ -18,7 +18,7 @@
 #ifndef FULL_INTERFACE_H
 #define FULL_INTERFACE_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 #include "about_section.h"
 #include "arp_section.h"

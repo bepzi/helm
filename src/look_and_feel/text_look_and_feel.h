@@ -17,7 +17,7 @@
 #ifndef TEXT_LOOK_AND_FEEL_H
 #define TEXT_LOOK_AND_FEEL_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "default_look_and_feel.h"
 
 class TextLookAndFeel : public DefaultLookAndFeel {

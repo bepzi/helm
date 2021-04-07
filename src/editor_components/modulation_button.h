@@ -18,7 +18,7 @@
 #ifndef MODULATION_BUTTON_H
 #define MODULATION_BUTTON_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 namespace mopo {
   struct ModulationConnection;

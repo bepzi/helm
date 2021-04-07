@@ -18,7 +18,7 @@
 #ifndef WAVE_SELECTOR_H
 #define WAVE_SELECTOR_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_slider.h"
 
 class WaveSelector : public SynthSlider {

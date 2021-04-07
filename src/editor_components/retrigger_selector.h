@@ -17,7 +17,7 @@
 #ifndef RETRIGGER_SELECTOR_H
 #define RETRIGGER_SELECTOR_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_slider.h"
 
 class RetriggerSelector : public SynthSlider {

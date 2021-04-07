@@ -18,7 +18,7 @@
 #ifndef VOLUME_SECTION_H
 #define VOLUME_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_section.h"
 #include "open_gl_peak_meter.h"
 

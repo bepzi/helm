@@ -17,7 +17,7 @@
 #ifndef BROWSER_LOOK_AND_FEEL_H
 #define BROWSER_LOOK_AND_FEEL_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "text_look_and_feel.h"
 
 class BrowserLookAndFeel : public juce::LookAndFeel_V3 {

@@ -18,7 +18,7 @@
 #ifndef OPEN_GL_PEAK_METER_H
 #define OPEN_GL_PEAK_METER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 #include "helm_common.h"
 #include "open_gl_component.h"

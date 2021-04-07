@@ -18,7 +18,7 @@
 #include "fonts.h"
 #include "helm_common.h"
 #include "load_save.h"
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "text_look_and_feel.h"
 
 #define UPDATE_CHECK_WIDTH 340

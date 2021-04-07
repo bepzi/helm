@@ -17,7 +17,7 @@
 #ifndef VALUE_BRIDGE_H
 #define VALUE_BRIDGE_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "mopo.h"
 #include "helm_common.h"
 

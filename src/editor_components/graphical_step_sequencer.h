@@ -18,7 +18,7 @@
 #ifndef GRAPHICAL_STEP_SEQUENCER_H
 #define GRAPHICAL_STEP_SEQUENCER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "mopo.h"
 #include "synth_slider.h"
 #include <vector>

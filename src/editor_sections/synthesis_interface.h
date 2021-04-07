@@ -18,7 +18,7 @@
 #ifndef SYNTHESIS_INTERFACE_H
 #define SYNTHESIS_INTERFACE_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "helm_engine.h"
 
 #include "delay_section.h"

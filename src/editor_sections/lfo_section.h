@@ -18,7 +18,7 @@
 #ifndef LFO_SECTION_H
 #define LFO_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "open_gl_wave_viewer.h"
 #include "synth_section.h"
 #include "retrigger_selector.h"

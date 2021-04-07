@@ -17,7 +17,7 @@
 #ifndef HELM_PLUGIN_H
 #define HELM_PLUGIN_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 #include "synth_base.h"
 #include "value_bridge.h"

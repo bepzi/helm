@@ -18,7 +18,7 @@
 #ifndef UPDATE_CHECK_SECTION_H
 #define UPDATE_CHECK_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 class UpdateMemory : public DeletedAtShutdown {
   public:

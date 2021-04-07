@@ -18,7 +18,7 @@
 #ifndef OPEN_GL_MODULATION_MANAGER_H
 #define OPEN_GL_MODULATION_MANAGER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 #include "helm_common.h"
 #include "modulation_button.h"

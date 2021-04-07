@@ -17,7 +17,7 @@
 #ifndef HELM_EDITOR_H
 #define HELM_EDITOR_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "helm_plugin.h"
 #include "full_interface.h"
 #include "synth_gui_interface.h"

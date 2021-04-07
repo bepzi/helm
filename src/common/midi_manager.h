@@ -17,7 +17,7 @@
 #ifndef MIDI_MANAGER_H
 #define MIDI_MANAGER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "common.h"
 #include "helm_common.h"
 #include <string>

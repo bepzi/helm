@@ -17,7 +17,7 @@
 #ifndef STARTUP_H
 #define STARTUP_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 #include <map>
 

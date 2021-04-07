@@ -17,7 +17,7 @@
 #ifndef OPEN_GL_MODULATION_METER_H
 #define OPEN_GL_MODULATION_METER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "open_gl_component.h"
 #include "processor.h"
 #include "synth_slider.h"

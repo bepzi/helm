@@ -15,7 +15,7 @@
  */
 
 #include "shaders.h"
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 const char* Shaders::getShader(Shader shader) {
   return shaders_[shader];

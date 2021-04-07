@@ -18,7 +18,7 @@
 #ifndef COLORS_H
 #define COLORS_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 class Colors {
   public:

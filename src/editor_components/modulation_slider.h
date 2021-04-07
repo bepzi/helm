@@ -17,7 +17,7 @@
 #ifndef MODULATIONS_SLIDER_H
 #define MODULATIONS_SLIDER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_slider.h"
 
 class ModulationSlider : public SynthSlider, public Slider::Listener {

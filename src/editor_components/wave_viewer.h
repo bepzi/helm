@@ -18,7 +18,7 @@
 #ifndef WAVE_VIEWER_H
 #define WAVE_VIEWER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "wave.h"
 #include "helm_common.h"
 

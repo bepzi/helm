@@ -18,7 +18,7 @@
 #ifndef ENVELOPE_SECTION_H
 #define ENVELOPE_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "open_gl_envelope.h"
 #include "synth_section.h"
 

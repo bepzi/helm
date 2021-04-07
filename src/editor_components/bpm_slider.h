@@ -17,7 +17,7 @@
 #ifndef BPM_SLIDER_H
 #define BPM_SLIDER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "synth_slider.h"
 
 class BpmSlider : public SynthSlider, public Timer {

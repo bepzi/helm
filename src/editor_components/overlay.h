@@ -17,7 +17,7 @@
 #ifndef OVERLAY_H
 #define OVERLAY_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include <set>
 
 class Overlay : public Component {

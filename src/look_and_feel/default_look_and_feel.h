@@ -17,7 +17,7 @@
 #ifndef DEFAULT_LOOK_AND_FEEL_H
 #define DEFAULT_LOOK_AND_FEEL_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 class DefaultLookAndFeel : public juce::LookAndFeel_V3 {
   public:

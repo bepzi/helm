@@ -17,7 +17,7 @@
 #ifndef SYNTH_SLIDER_H
 #define SYNTH_SLIDER_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "helm_common.h"
 
 class FullInterface;

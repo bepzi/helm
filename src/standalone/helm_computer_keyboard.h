@@ -17,7 +17,7 @@
 #ifndef HELM_COMPUTER_KEYBOARD_H
 #define HELM_COMPUTER_KEYBOARD_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 
 #include "helm_common.h"
 #include "helm_engine.h"

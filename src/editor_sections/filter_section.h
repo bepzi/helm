@@ -18,7 +18,7 @@
 #ifndef FILTER_SECTION_H
 #define FILTER_SECTION_H
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "filter_selector.h"
 #include "filter_response.h"
 #include "synth_button.h"
