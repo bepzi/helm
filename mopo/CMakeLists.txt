@@ -1,3 +1,10 @@
+cmake_minimum_required(VERSION 3.15)
+
+project(MOPO
+  VERSION 0.10.0
+  DESCRIPTION "A modular and polyphonic audio synthesis library, by Matt Tytel."
+  LANGUAGES CXX)
+
 add_library(mopo STATIC
   src/alias.cpp
   src/arpeggiator.cpp
@@ -38,3 +45,5 @@ add_library(mopo STATIC
 target_include_directories(mopo PUBLIC src)
 
 target_compile_features(mopo PUBLIC cxx_std_11)
+
+set_target_properties(mopo PROPERTIES CXX_EXTENSIONS OFF)

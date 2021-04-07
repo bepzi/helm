@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(HELM
   VERSION 0.10.0
-  DESCRIPTION "A cross-platform polyphonic synthesizer by Matt Tytel."
+  DESCRIPTION "A cross-platform polyphonic synthesizer, by Matt Tytel."
   LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
