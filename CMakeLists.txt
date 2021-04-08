@@ -40,12 +40,6 @@ juce_add_binary_data(HelmData SOURCES
   images/modulation_unselected_inactive_1x.png
   images/modulation_unselected_inactive_2x.png)
 
-# TODO: Fix VST2 and LV2 plugin formats
-# TODO: Figure out why everything is sluggish even in Release mode
-# (Note that VST3 is just unnaturally slow on my system)
-# TODO: Fix "redefinition of JUCE_STANDALONE_APPLICATION"
-# TODO: Re-enable recommended compiler warnings
-
 # ==================================================
 
 juce_add_plugin(HelmPlugin
@@ -61,7 +55,7 @@ juce_add_plugin(HelmPlugin
   PRODUCT_NAME "helm"
   COMPANY_NAME "Matt Tytel"
   PLUGIN_MANUFACTURER_CODE "Tyte"
-  FORMATS VST3 AU # LV2 VST
+  FORMATS VST3 AU # LV2
 
   # LV2_URI https://github.com/bepzi/helm
   )
