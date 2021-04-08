@@ -166,9 +166,7 @@ target_include_directories(HelmPlugin PUBLIC
 
 target_compile_definitions(HelmPlugin PUBLIC
   JUCE_DISPLAY_SPLASH_SCREEN=0
-  JUCE_REPORT_APP_USAGE=0
   JUCE_VST3_CAN_REPLACE_VST2=0
-  JUCE_QUICKTIME="disabled"
   JUCE_WEB_BROWSER=0
   JUCE_USE_CURL=0
   JUCE_USE_XRANDR=0)
@@ -223,7 +221,6 @@ target_compile_definitions(HelmStandalone PRIVATE
   JUCE_ALSA=1
   JUCE_JACK=1
   JUCE_JACK_CLIENT_NAME="Helm"
-  JUCE_ALSA_MIDI_INPUT_NAME="Helm"
-  JUCE_ALSA_MIDI_OUTPUT_NAME="Helm")
+  JUCE_ALSA_MIDI_NAME="Helm")
 
 target_link_libraries(HelmStandalone PRIVATE HelmPlugin)
