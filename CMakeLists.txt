@@ -226,10 +226,4 @@ target_compile_definitions(HelmStandalone PRIVATE
   JUCE_ALSA_MIDI_INPUT_NAME="Helm"
   JUCE_ALSA_MIDI_OUTPUT_NAME="Helm")
 
-target_link_libraries(HelmStandalone
-  PRIVATE
-    HelmPlugin
-    juce::juce_recommended_config_flags
-    juce::juce_recommended_lto_flags
-    # juce::juce_recommended_warning_flags
-    )
+target_link_libraries(HelmStandalone PRIVATE HelmPlugin)
