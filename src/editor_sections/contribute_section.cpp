@@ -80,15 +80,15 @@ class NeverAgainLookAndFeel : public DefaultLookAndFeel {
 };
 
 ContributeSection::ContributeSection(String name) : Overlay(name) {
-  give_100_button_ = new ToggleButton("$100");
-  give_50_button_ = new ToggleButton("$50");
-  give_25_button_ = new ToggleButton("$25");
-  give_10_button_ = new ToggleButton("$10");
+  give_100_button_ = std::make_unique<ToggleButton>("$100");
+  give_50_button_ = std::make_unique<ToggleButton>("$50");
+  give_25_button_ = std::make_unique<ToggleButton>("$25");
+  give_10_button_ = std::make_unique<ToggleButton>("$10");
 
-  give_buttons_.insert(give_100_button_);
-  give_buttons_.insert(give_50_button_);
-  give_buttons_.insert(give_25_button_);
-  give_buttons_.insert(give_10_button_);
+  give_buttons_.insert(give_100_button_.get());
+  give_buttons_.insert(give_50_button_.get());
+  give_buttons_.insert(give_25_button_.get());
+  give_buttons_.insert(give_10_button_.get());
 
   for (Button* give_button : give_buttons_) {
     addAndMakeVisible(give_button);
@@ -99,8 +99,8 @@ ContributeSection::ContributeSection(String name) : Overlay(name) {
 
   give_25_button_->setToggleState(true, NotificationType::dontSendNotification);
 
-  custom_amount_ = new CustomAmountEditor("custom amount");
-  addAndMakeVisible(custom_amount_);
+  custom_amount_ = std::make_unique<CustomAmountEditor>("custom amount");
+  addAndMakeVisible(custom_amount_.get());
   custom_amount_->addFocusListener(this);
 
   custom_amount_->setTextToShowWhenEmpty(TRANS("$5"), Colour(0xff777777));
@@ -115,8 +115,8 @@ ContributeSection::ContributeSection(String name) : Overlay(name) {
   custom_amount_->setColour(TextEditor::outlineColourId, Colour(0xff888888));
   custom_amount_->setColour(TextEditor::focusedOutlineColourId, Colour(0xffffab00));
 
-  pay_button_ = new TextButton(TRANS("Pay"));
-  addAndMakeVisible(pay_button_);
+  pay_button_ = std::make_unique<TextButton>(TRANS("Pay"));
+  addAndMakeVisible(pay_button_.get());
   pay_button_->addListener(this);
   pay_button_->setMouseCursor(MouseCursor::PointingHandCursor);
   pay_button_->setLookAndFeel(PayLookAndFeel::instance());
@@ -124,8 +124,8 @@ ContributeSection::ContributeSection(String name) : Overlay(name) {
   pay_button_->setColour(TextButton::buttonOnColourId, Colour(0xff55bbff));
   pay_button_->setColour(TextButton::textColourOffId, Colours::white);
 
-  remind_button_ = new TextButton(TRANS("Remind Me Later"));
-  addAndMakeVisible(remind_button_);
+  remind_button_ = std::make_unique<TextButton>(TRANS("Remind Me Later"));
+  addAndMakeVisible(remind_button_.get());
   remind_button_->addListener(this);
   remind_button_->setMouseCursor(MouseCursor::PointingHandCursor);
   remind_button_->setLookAndFeel(PayLookAndFeel::instance());
@@ -133,10 +133,10 @@ ContributeSection::ContributeSection(String name) : Overlay(name) {
   remind_button_->setColour(TextButton::buttonOnColourId, Colour(0xff555555));
   remind_button_->setColour(TextButton::textColourOffId, Colour(0xff999999));
 
-  never_again_button_ = new TextButton(TRANS("Don't Ask Again"));
+  never_again_button_ = std::make_unique<TextButton>(TRANS("Don't Ask Again"));
   never_again_button_->setLookAndFeel(NeverAgainLookAndFeel::instance());
   never_again_button_->setMouseCursor(MouseCursor::PointingHandCursor);
-  addAndMakeVisible(never_again_button_);
+  addAndMakeVisible(never_again_button_.get());
   never_again_button_->addListener(this);
 }
 
@@ -246,16 +246,16 @@ void ContributeSection::buttonClicked(Button* clicked_button) {
         give_button->setToggleState(false, NotificationType::dontSendNotification);
     }
   }
-  else if (clicked_button == pay_button_) {
+  else if (clicked_button == pay_button_.get()) {
     URL url = getUrl();
     url.launchInDefaultBrowser();
     LoadSave::saveShouldAskForMoney(false);
   }
-  else if (clicked_button == remind_button_) {
+  else if (clicked_button == remind_button_.get()) {
     setVisible(false);
     LoadSave::saveLastAskedForMoney();
   }
-  else if (clicked_button == never_again_button_) {
+  else if (clicked_button == never_again_button_.get()) {
     setVisible(false);
     LoadSave::saveShouldAskForMoney(false);
   }

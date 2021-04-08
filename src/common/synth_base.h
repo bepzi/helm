@@ -48,7 +48,7 @@ class SynthBase : public MidiManager::Listener {
     std::vector<mopo::ModulationConnection*> getSourceConnections(const std::string& source);
     std::vector<mopo::ModulationConnection*> getDestinationConnections(
         const std::string& destination);
-  
+
     mopo::Output* getModSource(const std::string& name);
 
     void loadInitPatch();
@@ -76,7 +76,7 @@ class SynthBase : public MidiManager::Listener {
 
     mopo::control_map& getControls() { return controls_; }
     mopo::HelmEngine* getEngine() { return &engine_; }
-    MidiKeyboardState* getKeyboardState() { return keyboard_state_; }
+    MidiKeyboardState* getKeyboardState() { return keyboard_state_.get(); }
     const float* getOutputMemory() { return output_memory_; }
     mopo::ModulationConnectionBank& getModulationBank() { return modulation_bank_; }
 
@@ -117,8 +117,8 @@ class SynthBase : public MidiManager::Listener {
 
     mopo::ModulationConnectionBank modulation_bank_;
     mopo::HelmEngine engine_;
-    ScopedPointer<MidiManager> midi_manager_;
-    ScopedPointer<MidiKeyboardState> keyboard_state_;
+    std::unique_ptr<MidiManager> midi_manager_;
+    std::unique_ptr<MidiKeyboardState> keyboard_state_;
 
     File active_file_;
     float output_memory_[2 * mopo::MEMORY_RESOLUTION];

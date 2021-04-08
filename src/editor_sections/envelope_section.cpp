@@ -28,30 +28,30 @@
 
 EnvelopeSection::EnvelopeSection(String name, std::string value_prepend) : SynthSection(name) {
 
-  addSlider(attack_ = new SynthSlider(value_prepend + "_attack"));
+  addSlider((attack_ = std::make_unique<SynthSlider>(value_prepend + "_attack")).get());
   attack_->setSliderStyle(Slider::LinearBar);
   attack_->setPopupPlacement(BubbleComponent::below);
 
-  addSlider(decay_ = new SynthSlider(value_prepend + "_decay"));
+  addSlider((decay_ = std::make_unique<SynthSlider>(value_prepend + "_decay")).get());
   decay_->setSliderStyle(Slider::LinearBar);
   decay_->setPopupPlacement(BubbleComponent::below);
 
-  addSlider(release_ = new SynthSlider(value_prepend + "_release"));
+  addSlider((release_ = std::make_unique<SynthSlider>(value_prepend + "_release")).get());
   release_->setSliderStyle(Slider::LinearBar);
   release_->setPopupPlacement(BubbleComponent::below);
 
-  addSlider(sustain_ = new SynthSlider(value_prepend + "_sustain"));
+  addSlider((sustain_ = std::make_unique<SynthSlider>(value_prepend + "_sustain")).get());
   sustain_->setSliderStyle(Slider::LinearBar);
   sustain_->setPopupPlacement(BubbleComponent::below);
 
-  addOpenGLComponent(envelope_ = new OpenGLEnvelope());
+  addOpenGLComponent((envelope_ = std::make_unique<OpenGLEnvelope>()).get());
   envelope_->setName(value_prepend + "_envelope");
-  envelope_->setAttackSlider(attack_);
-  envelope_->setDecaySlider(decay_);
-  envelope_->setSustainSlider(sustain_);
-  envelope_->setReleaseSlider(release_);
+  envelope_->setAttackSlider(attack_.get());
+  envelope_->setDecaySlider(decay_.get());
+  envelope_->setSustainSlider(sustain_.get());
+  envelope_->setReleaseSlider(release_.get());
 
-  addModulationButton(modulation_button_ = new ModulationButton(value_prepend + "_envelope"));
+  addModulationButton((modulation_button_ = std::make_unique<ModulationButton>(value_prepend + "_envelope")).get());
   modulation_button_->setLookAndFeel(ModulationLookAndFeel::instance());
 }
 

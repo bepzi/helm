@@ -27,7 +27,7 @@
 #define MAX_BUFFER_PROCESS 256
 
 HelmEditor::HelmEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
-  computer_keyboard_ = new HelmComputerKeyboard(&engine_, keyboard_state_);
+  computer_keyboard_ = std::make_unique<HelmComputerKeyboard>(&engine_, keyboard_state_.get());
 
   setAudioChannels(0, mopo::NUM_CHANNELS);
 
@@ -51,17 +51,17 @@ HelmEditor::HelmEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
   for (int i = 0; i < all_midi_ins.size(); ++i)
     deviceManager.setMidiInputEnabled(all_midi_ins[i], true);
 
-  deviceManager.addMidiInputCallback("", midi_manager_);
+  deviceManager.addMidiInputCallback("", midi_manager_.get());
 
   if (use_gui) {
     setLookAndFeel(DefaultLookAndFeel::instance());
-    addAndMakeVisible(gui_);
+    addAndMakeVisible(gui_.get());
     gui_->setOutputMemory(getOutputMemory());
     float window_size = LoadSave::loadWindowSize();
     setSize(window_size * mopo::DEFAULT_WINDOW_WIDTH, window_size * mopo::DEFAULT_WINDOW_HEIGHT);
 
     setWantsKeyboardFocus(true);
-    addKeyListener(computer_keyboard_);
+    addKeyListener(computer_keyboard_.get());
     setOpaque(true);
   }
 }

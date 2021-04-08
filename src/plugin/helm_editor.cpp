@@ -25,7 +25,8 @@ HelmEditor::HelmEditor(HelmPlugin& helm) : AudioProcessorEditor(&helm), SynthGui
                                            helm_(helm), was_animating_(true) {
   setLookAndFeel(DefaultLookAndFeel::instance());
 
-  addAndMakeVisible(gui_);
+  addAndMakeVisible(gui_.get());
+
   gui_->setOutputMemory(helm.getOutputMemory());
   gui_->animate(LoadSave::shouldAnimateWidgets());
 

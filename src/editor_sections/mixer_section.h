@@ -30,10 +30,10 @@ class MixerSection : public SynthSection {
     void resized() override;
 
   private:
-    ScopedPointer<SynthSlider> osc_1_;
-    ScopedPointer<SynthSlider> osc_2_;
-    ScopedPointer<SynthSlider> sub_;
-    ScopedPointer<SynthSlider> noise_;
+    std::unique_ptr<SynthSlider> osc_1_;
+    std::unique_ptr<SynthSlider> osc_2_;
+    std::unique_ptr<SynthSlider> sub_;
+    std::unique_ptr<SynthSlider> noise_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MixerSection)
 };

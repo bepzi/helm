@@ -51,7 +51,7 @@ class HelmEditor : public AudioAppComponent,
     void animate(bool animate);
 
   private:
-    ScopedPointer<HelmComputerKeyboard> computer_keyboard_;
+    std::unique_ptr<HelmComputerKeyboard> computer_keyboard_;
     CriticalSection critical_section_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HelmEditor)

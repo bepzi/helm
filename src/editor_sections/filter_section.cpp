@@ -22,7 +22,6 @@
 #include "fonts.h"
 #include "synth_button.h"
 #include "synth_slider.h"
-#include "text_slider.h"
 #include "text_look_and_feel.h"
 
 #define KNOB_SECTION_WIDTH 70
@@ -38,53 +37,52 @@
 #define STYLE_LABEL_PADDING_Y 3
 
 FilterSection::FilterSection(String name) : SynthSection(name) {
-  addSlider(filter_shelf_ = new FilterSelector("filter_shelf"));
+    addSlider((filter_shelf_ = std::make_unique<FilterSelector>("filter_shelf")).get());
   filter_shelf_->setSliderStyle(Slider::LinearBar);
   filter_shelf_->setStringLookup(mopo::strings::filter_shelves);
   filter_shelf_->setVisible(false);
   filter_shelf_->setPopupPlacement(BubbleComponent::above);
 
-  addSlider(cutoff_ = new SynthSlider("cutoff"));
+  addSlider((cutoff_ = std::make_unique<SynthSlider>("cutoff")).get());
   cutoff_->setSliderStyle(Slider::LinearBar);
   cutoff_->setPopupPlacement(BubbleComponent::below, 0);
 
-  addSlider(blend_ = new SynthSlider("filter_blend"));
+  addSlider((blend_ = std::make_unique<SynthSlider>("filter_blend")).get());
   blend_->snapToValue(true, 1.0);
   blend_->setBipolar(true);
   blend_->setSliderStyle(Slider::LinearBar);
   blend_->setPopupPlacement(BubbleComponent::above);
 
-  addSlider(resonance_ = new SynthSlider("resonance"));
+  addSlider((resonance_ = std::make_unique<SynthSlider>("resonance")).get());
   resonance_->setSliderStyle(Slider::LinearBarVertical);
   resonance_->setPopupPlacement(BubbleComponent::right, 0);
 
-  addAndMakeVisible(filter_response_ = new FilterResponse(300));
-  filter_response_->setCutoffSlider(cutoff_);
-  filter_response_->setResonanceSlider(resonance_);
-  filter_response_->setFilterBlendSlider(blend_);
-  filter_response_->setFilterShelfSlider(filter_shelf_);
+  addAndMakeVisible((filter_response_ = std::make_unique<FilterResponse>(300)).get());
+  filter_response_->setCutoffSlider(cutoff_.get());
+  filter_response_->setResonanceSlider(resonance_.get());
+  filter_response_->setFilterBlendSlider(blend_.get());
+  filter_response_->setFilterShelfSlider(filter_shelf_.get());
 
-  addSlider(drive_ = new SynthSlider("filter_drive"));
+  addSlider((drive_ = std::make_unique<SynthSlider>("filter_drive")).get());
   drive_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  addSlider(fil_env_depth_ = new SynthSlider("fil_env_depth"));
+  addSlider((fil_env_depth_ = std::make_unique<SynthSlider>("fil_env_depth")).get());
   fil_env_depth_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   fil_env_depth_->setBipolar();
 
-  addSlider(keytrack_ = new SynthSlider("keytrack"));
+  addSlider((keytrack_ = std::make_unique<SynthSlider>("keytrack")).get());
   keytrack_->setSliderStyle(Slider::LinearBar);
   keytrack_->snapToValue(true, 0.0);
   keytrack_->setBipolar();
 
-  TextSlider* style = new TextSlider("filter_style");
-  addSlider(filter_style_ = style);
+  addSlider((filter_style_ = std::make_unique<TextSlider>("filter_style")).get());
   filter_style_->setSliderStyle(Slider::LinearBar);
   filter_style_->setStringLookup(mopo::strings::filter_style);
-  style->setShortStringLookup(mopo::strings::filter_style_short);
-  style->setPopupPlacement(BubbleComponent::above);
+  filter_style_->setShortStringLookup(mopo::strings::filter_style_short);
+  filter_style_->setPopupPlacement(BubbleComponent::above);
 
-  addButton(filter_on_ = new SynthButton("filter_on"));
-  setActivator(filter_on_);
+  addButton((filter_on_ = std::make_unique<SynthButton>("filter_on")).get());
+  setActivator(filter_on_.get());
 }
 
 FilterSection::~FilterSection() {
@@ -106,10 +104,10 @@ void FilterSection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(size_ratio_ * 10.0f));
-  
-  drawTextForComponent(g, TRANS("ENV DEPTH"), fil_env_depth_);
-  drawTextForComponent(g, TRANS("KEY TRACK"), keytrack_);
-  drawTextForComponent(g, TRANS("DRIVE"), drive_);
+
+  drawTextForComponent(g, TRANS("ENV DEPTH"), fil_env_depth_.get());
+  drawTextForComponent(g, TRANS("KEY TRACK"), keytrack_.get());
+  drawTextForComponent(g, TRANS("DRIVE"), drive_.get());
 
   g.setColour(Colour(0xffaaaaaa));
   g.strokePath(low_pass_, stroke);
@@ -185,7 +183,7 @@ void FilterSection::reset() {
 
 void FilterSection::sliderValueChanged(Slider* changed_slider) {
   SynthSection::sliderValueChanged(changed_slider);
-  if (changed_slider == filter_style_)
+  if (changed_slider == filter_style_.get())
     resetResponse();
 }
 

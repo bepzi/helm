@@ -30,18 +30,18 @@ class OpenGLBackground {
     virtual void render(OpenGLContext& open_gl_context);
     virtual void destroy(OpenGLContext& open_gl_context);
 
-    OpenGLShaderProgram* shader() { return image_shader_; }
-    OpenGLShaderProgram::Uniform* texture_uniform() { return texture_uniform_; }
+    OpenGLShaderProgram* shader() { return image_shader_.get(); }
+    OpenGLShaderProgram::Uniform* texture_uniform() { return texture_uniform_.get(); }
 
     void bind(OpenGLContext& open_gl_context);
     void enableAttributes(OpenGLContext& open_gl_context);
     void disableAttributes(OpenGLContext& open_gl_context);
 
   private:
-    ScopedPointer<OpenGLShaderProgram> image_shader_;
-    ScopedPointer<OpenGLShaderProgram::Uniform> texture_uniform_;
-    ScopedPointer<OpenGLShaderProgram::Attribute> position_;
-    ScopedPointer<OpenGLShaderProgram::Attribute> texture_coordinates_;
+    std::unique_ptr<OpenGLShaderProgram> image_shader_;
+    std::unique_ptr<OpenGLShaderProgram::Uniform> texture_uniform_;
+    std::unique_ptr<OpenGLShaderProgram::Attribute> position_;
+    std::unique_ptr<OpenGLShaderProgram::Attribute> texture_coordinates_;
 
     float vertices_[16];
 

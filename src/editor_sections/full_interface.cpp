@@ -40,19 +40,19 @@ FullInterface::FullInterface(mopo::control_map controls, mopo::output_map modula
   open_gl_context.attachTo(*getTopLevelComponent());
   open_gl_context.setOpenGLVersionRequired(OpenGLContext::openGL3_2);
 
-  addSubSection(synthesis_interface_ = new SynthesisInterface(controls, keyboard_state));
-  addSubSection(arp_section_ = new ArpSection(TRANS("ARP")));
-  addSubSection(bpm_section_ = new BpmSection(TRANS("BPM")));
+  addSubSection((synthesis_interface_ = std::make_unique<SynthesisInterface>(controls, keyboard_state)).get());
+  addSubSection((arp_section_ = std::make_unique<ArpSection>(TRANS("ARP"))).get());
+  addSubSection((bpm_section_ = std::make_unique<BpmSection>(TRANS("BPM"))).get());
 
-  addSubSection(patch_selector_ = new PatchSelector());
-  addAndMakeVisible(global_tool_tip_ = new GlobalToolTip());
-  addSubSection(volume_section_ = new VolumeSection("VOLUME"));
-  addOpenGLComponent(oscilloscope_ = new OpenGLOscilloscope());
+  addSubSection((patch_selector_ = std::make_unique<PatchSelector>()).get());
+  addAndMakeVisible((global_tool_tip_ = std::make_unique<GlobalToolTip>()).get());
+  addSubSection((volume_section_ = std::make_unique<VolumeSection>("VOLUME")).get());
+  addOpenGLComponent((oscilloscope_ = std::make_unique<OpenGLOscilloscope>()).get());
 
   setAllValues(controls);
   createModulationSliders(modulation_sources, mono_modulations, poly_modulations);
 
-  logo_button_ = new ImageButton("logo_button");
+  logo_button_ = std::make_unique<ImageButton>("logo_button");
   auto *display = Desktop::getInstance().getDisplays().getPrimaryDisplay();
   jassert(display != nullptr);
   if (display->scale > 1.5) {
@@ -71,31 +71,28 @@ FullInterface::FullInterface(mopo::control_map controls, mopo::output_map modula
                             helm_small, 1.0, Colour(0x11ffffff),
                             helm_small, 1.0, Colour(0x11000000));
   }
-  addAndMakeVisible(logo_button_);
+  addAndMakeVisible(logo_button_.get());
   logo_button_->addListener(this);
 
-  addChildComponent(patch_browser_ = new PatchBrowser());
-  patch_selector_->setBrowser(patch_browser_);
+  addChildComponent((patch_browser_ = std::make_unique<PatchBrowser>()).get());
+  patch_selector_->setBrowser(patch_browser_.get());
 
-  addChildComponent(save_section_ = new SaveSection("save_section"));
-  patch_browser_->setSaveSection(save_section_);
-  patch_selector_->setSaveSection(save_section_);
+  addChildComponent((save_section_ = std::make_unique<SaveSection>("save_section")).get());
+  patch_browser_->setSaveSection(save_section_.get());
+  patch_selector_->setSaveSection(save_section_.get());
 
-  addChildComponent(delete_section_ = new DeleteSection("delete_section"));
-  patch_browser_->setDeleteSection(delete_section_);
+  addChildComponent((delete_section_ = std::make_unique<DeleteSection>("delete_section")).get());
+  patch_browser_->setDeleteSection(delete_section_.get());
 
-  about_section_ = new AboutSection("about");
-  addChildComponent(about_section_);
+  addChildComponent((about_section_ = std::make_unique<AboutSection>("about")).get());
 
 #if PAY_NAG
   if (LoadSave::shouldAskForPayment()) {
-    contribute_section_ = new ContributeSection("contribute");
-    addAndMakeVisible(contribute_section_);
+    addAndMakeVisible((contribute_section_ = std::make_unique<ContributeSection>("contribute")).get());
   }
 #endif
 
-  update_check_section_ = new UpdateCheckSection("update_check");
-  addChildComponent(update_check_section_);
+  addChildComponent((update_check_section_ = std::make_unique<UpdateCheckSection>("update_check")).get());
 
   synthesis_interface_->toFront(true);
   modulation_manager_->toFront(false);
@@ -264,12 +261,12 @@ void FullInterface::createModulationSliders(mopo::output_map modulation_sources,
       modulatable_sliders[destination.first] = all_sliders[destination.first];
   }
 
-  modulation_manager_ = new OpenGLModulationManager(modulation_sources,
+  modulation_manager_ = std::make_unique<OpenGLModulationManager>(modulation_sources,
                                                     getAllModulationButtons(),
                                                     modulatable_sliders,
                                                     mono_modulations, poly_modulations);
   modulation_manager_->setOpaque(false);
-  addOpenGLComponent(modulation_manager_);
+  addOpenGLComponent(modulation_manager_.get());
 }
 
 void FullInterface::setToolTipText(String parameter, String value) {
@@ -278,7 +275,7 @@ void FullInterface::setToolTipText(String parameter, String value) {
 }
 
 void FullInterface::buttonClicked(Button* clicked_button) {
-  if (clicked_button == logo_button_) {
+  if (clicked_button == logo_button_.get()) {
     about_section_->setVisible(true);
   }
   else

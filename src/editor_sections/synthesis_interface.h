@@ -57,27 +57,27 @@ class SynthesisInterface  : public SynthSection {
     void setSectionThreeWidth(int width) { section_three_width_ = width; }
 
   private:
-    ScopedPointer<EnvelopeSection> amplitude_envelope_section_;
-    ScopedPointer<DelaySection> delay_section_;
-    ScopedPointer<DynamicSection> dynamic_section_;
-    ScopedPointer<EnvelopeSection> extra_envelope_section_;
-    ScopedPointer<ExtraModSection> extra_mod_section_;
-    ScopedPointer<FeedbackSection> feedback_section_;
-    ScopedPointer<EnvelopeSection> filter_envelope_section_;
-    ScopedPointer<FilterSection> filter_section_;
-    ScopedPointer<FormantSection> formant_section_;
-    ScopedPointer<LfoSection> mono_lfo_1_section_;
-    ScopedPointer<LfoSection> mono_lfo_2_section_;
-    ScopedPointer<MidiKeyboardComponent> keyboard_;
-    ScopedPointer<MixerSection> mixer_section_;
-    ScopedPointer<OscillatorSection> oscillator_section_;
-    ScopedPointer<LfoSection> poly_lfo_section_;
-    ScopedPointer<ReverbSection> reverb_section_;
-    ScopedPointer<DistortionSection> distortion_section_;
-    ScopedPointer<StepSequencerSection> step_sequencer_section_;
-    ScopedPointer<StutterSection> stutter_section_;
-    ScopedPointer<SubSection> sub_section_;
-    ScopedPointer<VoiceSection> voice_section_;
+    std::unique_ptr<EnvelopeSection> amplitude_envelope_section_;
+    std::unique_ptr<DelaySection> delay_section_;
+    std::unique_ptr<DynamicSection> dynamic_section_;
+    std::unique_ptr<EnvelopeSection> extra_envelope_section_;
+    std::unique_ptr<ExtraModSection> extra_mod_section_;
+    std::unique_ptr<FeedbackSection> feedback_section_;
+    std::unique_ptr<EnvelopeSection> filter_envelope_section_;
+    std::unique_ptr<FilterSection> filter_section_;
+    std::unique_ptr<FormantSection> formant_section_;
+    std::unique_ptr<LfoSection> mono_lfo_1_section_;
+    std::unique_ptr<LfoSection> mono_lfo_2_section_;
+    std::unique_ptr<MidiKeyboardComponent> keyboard_;
+    std::unique_ptr<MixerSection> mixer_section_;
+    std::unique_ptr<OscillatorSection> oscillator_section_;
+    std::unique_ptr<LfoSection> poly_lfo_section_;
+    std::unique_ptr<ReverbSection> reverb_section_;
+    std::unique_ptr<DistortionSection> distortion_section_;
+    std::unique_ptr<StepSequencerSection> step_sequencer_section_;
+    std::unique_ptr<StutterSection> stutter_section_;
+    std::unique_ptr<SubSection> sub_section_;
+    std::unique_ptr<VoiceSection> voice_section_;
 
     int padding_;
     int section_one_width_;

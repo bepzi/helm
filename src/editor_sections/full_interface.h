@@ -72,24 +72,24 @@ class FullInterface : public SynthSection, public OpenGLRenderer {
   private:
     std::map<std::string, SynthSlider*> slider_lookup_;
     std::map<std::string, Button*> button_lookup_;
-    ScopedPointer<OpenGLModulationManager> modulation_manager_;
-    ScopedPointer<SynthSlider> arp_tempo_;
+    std::unique_ptr<OpenGLModulationManager> modulation_manager_;
+    std::unique_ptr<SynthSlider> arp_tempo_;
 
-    ScopedPointer<AboutSection> about_section_;
-    ScopedPointer<ContributeSection> contribute_section_;
-    ScopedPointer<UpdateCheckSection> update_check_section_;
-    ScopedPointer<Component> standalone_settings_section_;
-    ScopedPointer<ImageButton> logo_button_;
-    ScopedPointer<ArpSection> arp_section_;
-    ScopedPointer<SynthesisInterface> synthesis_interface_;
-    ScopedPointer<OpenGLOscilloscope> oscilloscope_;
-    ScopedPointer<BpmSection> bpm_section_;
-    ScopedPointer<GlobalToolTip> global_tool_tip_;
-    ScopedPointer<PatchSelector> patch_selector_;
-    ScopedPointer<PatchBrowser> patch_browser_;
-    ScopedPointer<SaveSection> save_section_;
-    ScopedPointer<DeleteSection> delete_section_;
-    ScopedPointer<VolumeSection> volume_section_;
+    std::unique_ptr<AboutSection> about_section_;
+    std::unique_ptr<ContributeSection> contribute_section_;
+    std::unique_ptr<UpdateCheckSection> update_check_section_;
+    std::unique_ptr<Component> standalone_settings_section_;
+    std::unique_ptr<ImageButton> logo_button_;
+    std::unique_ptr<ArpSection> arp_section_;
+    std::unique_ptr<SynthesisInterface> synthesis_interface_;
+    std::unique_ptr<OpenGLOscilloscope> oscilloscope_;
+    std::unique_ptr<BpmSection> bpm_section_;
+    std::unique_ptr<GlobalToolTip> global_tool_tip_;
+    std::unique_ptr<PatchSelector> patch_selector_;
+    std::unique_ptr<PatchBrowser> patch_browser_;
+    std::unique_ptr<SaveSection> save_section_;
+    std::unique_ptr<DeleteSection> delete_section_;
+    std::unique_ptr<VolumeSection> volume_section_;
 
     bool animate_;
     OpenGLContext open_gl_context;

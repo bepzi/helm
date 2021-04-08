@@ -23,6 +23,7 @@
 #include "filter_response.h"
 #include "synth_button.h"
 #include "synth_section.h"
+#include "text_slider.h"
 
 class FilterSection : public SynthSection {
   public:
@@ -41,16 +42,16 @@ class FilterSection : public SynthSection {
     void resetResponse();
 
   private:
-    ScopedPointer<SynthButton> filter_on_;
-    ScopedPointer<FilterSelector> filter_shelf_;
-    ScopedPointer<SynthSlider> cutoff_;
-    ScopedPointer<SynthSlider> resonance_;
-    ScopedPointer<SynthSlider> blend_;
-    ScopedPointer<FilterResponse> filter_response_;
-    ScopedPointer<SynthSlider> fil_env_depth_;
-    ScopedPointer<SynthSlider> keytrack_;
-    ScopedPointer<SynthSlider> filter_style_;
-    ScopedPointer<SynthSlider> drive_;
+    std::unique_ptr<SynthButton> filter_on_;
+    std::unique_ptr<FilterSelector> filter_shelf_;
+    std::unique_ptr<SynthSlider> cutoff_;
+    std::unique_ptr<SynthSlider> resonance_;
+    std::unique_ptr<SynthSlider> blend_;
+    std::unique_ptr<FilterResponse> filter_response_;
+    std::unique_ptr<SynthSlider> fil_env_depth_;
+    std::unique_ptr<SynthSlider> keytrack_;
+    std::unique_ptr<TextSlider> filter_style_;
+    std::unique_ptr<SynthSlider> drive_;
 
     Path low_pass_;
     Path high_pass_;

@@ -37,15 +37,15 @@ class LfoSection : public SynthSection {
 
   private:
     bool can_animate_;
-    ScopedPointer<OpenGLWaveViewer> wave_viewer_;
-    ScopedPointer<WaveSelector> wave_selector_;
+    std::unique_ptr<OpenGLWaveViewer> wave_viewer_;
+    std::unique_ptr<WaveSelector> wave_selector_;
 
-    ScopedPointer<RetriggerSelector> retrigger_;
-    ScopedPointer<SynthSlider> amplitude_;
-    ScopedPointer<SynthSlider> frequency_;
-    ScopedPointer<SynthSlider> tempo_;
-    ScopedPointer<TempoSelector> sync_;
-    ScopedPointer<ModulationButton> modulation_button_;
+    std::unique_ptr<RetriggerSelector> retrigger_;
+    std::unique_ptr<SynthSlider> amplitude_;
+    std::unique_ptr<SynthSlider> frequency_;
+    std::unique_ptr<SynthSlider> tempo_;
+    std::unique_ptr<TempoSelector> sync_;
+    std::unique_ptr<ModulationButton> modulation_button_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfoSection)
 };

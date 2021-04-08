@@ -30,36 +30,36 @@
 StepSequencerSection::StepSequencerSection(String name) : SynthSection(name) {
   static const int TEMPO_DRAG_SENSITIVITY = 150;
 
-  addAndMakeVisible(step_sequencer_ = new GraphicalStepSequencer());
+  addAndMakeVisible((step_sequencer_ = std::make_unique<GraphicalStepSequencer>()).get());
 
-  addSlider(retrigger_ = new RetriggerSelector("step_sequencer_retrigger"));
+  addSlider((retrigger_ = std::make_unique<RetriggerSelector>("step_sequencer_retrigger")).get());
   retrigger_->setSliderStyle(Slider::LinearBar);
   retrigger_->setStringLookup(mopo::strings::freq_retrigger_styles);
 
-  addSlider(num_steps_ = new SynthSlider("num_steps"));
+  addSlider((num_steps_ = std::make_unique<SynthSlider>("num_steps")).get());
   num_steps_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   num_steps_->setLookAndFeel(TextLookAndFeel::instance());
 
-  addSlider(frequency_ = new SynthSlider("step_frequency"));
+  addSlider((frequency_ = std::make_unique<SynthSlider>("step_frequency")).get());
   frequency_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   frequency_->setLookAndFeel(TextLookAndFeel::instance());
 
-  addSlider(tempo_ = new SynthSlider("step_sequencer_tempo"));
+  addSlider((tempo_ = std::make_unique<SynthSlider>("step_sequencer_tempo")).get());
   tempo_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   tempo_->setStringLookup(mopo::strings::synced_frequencies);
   tempo_->setLookAndFeel(TextLookAndFeel::instance());
   tempo_->setMouseDragSensitivity(TEMPO_DRAG_SENSITIVITY);
 
-  addSlider(sync_ = new TempoSelector("step_sequencer_sync"));
+  addSlider((sync_ = std::make_unique<TempoSelector>("step_sequencer_sync")).get());
   sync_->setSliderStyle(Slider::LinearBar);
-  sync_->setTempoSlider(tempo_);
-  sync_->setFreeSlider(frequency_);
+  sync_->setTempoSlider(tempo_.get());
+  sync_->setFreeSlider(frequency_.get());
   sync_->setStringLookup(mopo::strings::freq_sync_styles);
 
-  addSlider(smoothing_ = new SynthSlider("step_smoothing"));
+  addSlider((smoothing_ = std::make_unique<SynthSlider>("step_smoothing")).get());
   smoothing_->setSliderStyle(Slider::LinearBar);
 
-  addModulationButton(modulation_button_ = new ModulationButton("step_sequencer"));
+  addModulationButton((modulation_button_ = std::make_unique<ModulationButton>("step_sequencer")).get());
   modulation_button_->setLookAndFeel(ModulationLookAndFeel::instance());
 
   createStepSequencerSliders();
@@ -86,13 +86,13 @@ void StepSequencerSection::paintBackground(Graphics& g) {
   SynthSection::paintBackground(g);
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(font_size));
-  drawTextForComponent(g, TRANS("STEPS"), num_steps_, text_buffer);
+  drawTextForComponent(g, TRANS("STEPS"), num_steps_.get(), text_buffer);
   g.drawText(TRANS("FREQUENCY"),
              retrigger_->getBounds().getX(), frequency_->getBounds().getBottom() + text_buffer,
              frequency_->getBounds().getWidth() + 2 * text_height, font_size,
              Justification::centred, false);
 
-  drawTextForComponent(g, TRANS("SLIDE"), smoothing_, text_buffer);
+  drawTextForComponent(g, TRANS("SLIDE"), smoothing_.get(), text_buffer);
 
   component_shadow.drawForRectangle(g, step_sequencer_->getBounds());
 }
@@ -137,7 +137,7 @@ void StepSequencerSection::createStepSequencerSliders() {
     sequencer_sliders_.push_back(step);
   }
   step_sequencer_->setStepSliders(sequencer_sliders_);
-  step_sequencer_->setNumStepsSlider(num_steps_);
+  step_sequencer_->setNumStepsSlider(num_steps_.get());
   step_sequencer_->setName("step_sequencer_step");
 }
 

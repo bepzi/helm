@@ -33,10 +33,10 @@ class SubSection : public SynthSection {
     void reset() override;
 
   private:
-    ScopedPointer<WaveViewer> wave_viewer_;
-    ScopedPointer<WaveSelector> wave_selector_;
-    ScopedPointer<SynthSlider> shuffle_;
-    ScopedPointer<ToggleButton> sub_octave_;
+    std::unique_ptr<WaveViewer> wave_viewer_;
+    std::unique_ptr<WaveSelector> wave_selector_;
+    std::unique_ptr<SynthSlider> shuffle_;
+    std::unique_ptr<ToggleButton> sub_octave_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SubSection)
 };

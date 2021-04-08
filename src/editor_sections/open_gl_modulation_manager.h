@@ -67,8 +67,8 @@ class OpenGLModulationManager : public OpenGLComponent,
     void makeModulationsVisible(std::string destination, bool visible);
     void setSliderValues();
 
-    ScopedPointer<Component> polyphonic_destinations_;
-    ScopedPointer<Component> monophonic_destinations_;
+    std::unique_ptr<Component> polyphonic_destinations_;
+    std::unique_ptr<Component> monophonic_destinations_;
 
     std::string current_modulator_;
     double last_value_;
@@ -82,11 +82,11 @@ class OpenGLModulationManager : public OpenGLComponent,
     std::map<std::string, ModulationHighlight*> overlay_lookup_;
     mopo::output_map modulation_sources_;
 
-    ScopedPointer<OpenGLShaderProgram> shader_;
-    ScopedPointer<OpenGLShaderProgram::Attribute> position_;
-    ScopedPointer<OpenGLShaderProgram::Attribute> coordinates_;
-    ScopedPointer<OpenGLShaderProgram::Attribute> range_;
-    ScopedPointer<OpenGLShaderProgram::Uniform> radius_uniform_;
+    std::unique_ptr<OpenGLShaderProgram> shader_;
+    std::unique_ptr<OpenGLShaderProgram::Attribute> position_;
+    std::unique_ptr<OpenGLShaderProgram::Attribute> coordinates_;
+    std::unique_ptr<OpenGLShaderProgram::Attribute> range_;
+    std::unique_ptr<OpenGLShaderProgram::Uniform> radius_uniform_;
 
     float* vertices_;
     int* triangles_;

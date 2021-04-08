@@ -22,16 +22,16 @@
 FeedbackSection::FeedbackSection(String name) : SynthSection(name) {
   static const int TRANSPOSE_MOUSE_SENSITIVITY = 800;
 
-  addSlider(transpose_ = new SynthSlider("osc_feedback_transpose"));
+  addSlider((transpose_ = std::make_unique<SynthSlider>("osc_feedback_transpose")).get());
   transpose_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   transpose_->setBipolar();
   transpose_->setMouseDragSensitivity(TRANSPOSE_MOUSE_SENSITIVITY);
 
-  addSlider(amount_ = new SynthSlider("osc_feedback_amount"));
+  addSlider((amount_ = std::make_unique<SynthSlider>("osc_feedback_amount")).get());
   amount_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   amount_->setBipolar();
 
-  addSlider(tune_ = new SynthSlider("osc_feedback_tune"));
+  addSlider((tune_ = std::make_unique<SynthSlider>("osc_feedback_tune")).get());
   tune_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   tune_->setBipolar();
 }
@@ -47,10 +47,10 @@ void FeedbackSection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(size_ratio_ * 10.0f));
-  
-  drawTextForComponent(g, TRANS("TRANSPOSE"), transpose_);
-  drawTextForComponent(g, TRANS("TUNE"), tune_);
-  drawTextForComponent(g, TRANS("AMOUNT"), amount_);
+
+  drawTextForComponent(g, TRANS("TRANSPOSE"), transpose_.get());
+  drawTextForComponent(g, TRANS("TUNE"), tune_.get());
+  drawTextForComponent(g, TRANS("AMOUNT"), amount_.get());
 }
 
 void FeedbackSection::resized() {

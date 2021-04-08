@@ -22,7 +22,7 @@
 
 SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(synth) {
   if (use_gui) {
-    gui_ = new FullInterface(synth->getControls(),
+      gui_ = std::make_unique<FullInterface>(synth->getControls(),
                              synth->getEngine()->getModulationSources(),
                              synth->getEngine()->getMonoModulations(),
                              synth->getEngine()->getPolyModulations(),

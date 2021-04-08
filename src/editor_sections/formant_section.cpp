@@ -22,20 +22,20 @@
 #define SLIDER_WIDTH 10
 
 FormantSection::FormantSection(String name) : SynthSection(name) {
-  addSlider(x_ = new SynthSlider("formant_x"));
+    addSlider((x_ = std::make_unique<SynthSlider>("formant_x")).get());
   x_->setSliderStyle(Slider::LinearBar);
   x_->setPopupPlacement(BubbleComponent::below, 0);
 
-  addSlider(y_ = new SynthSlider("formant_y"));
+  addSlider((y_ = std::make_unique<SynthSlider>("formant_y")).get());
   y_->setSliderStyle(Slider::LinearBarVertical);
   y_->setPopupPlacement(BubbleComponent::right, 0);
 
-  addAndMakeVisible(xy_pad_ = new XYPad());
-  xy_pad_->setXSlider(x_);
-  xy_pad_->setYSlider(y_);
+  addAndMakeVisible((xy_pad_ = std::make_unique<XYPad>()).get());
+  xy_pad_->setXSlider(x_.get());
+  xy_pad_->setYSlider(y_.get());
 
-  addButton(on_ = new SynthButton("formant_on"));
-  setActivator(on_);
+  addButton((on_ = std::make_unique<SynthButton>("formant_on")).get());
+  setActivator(on_.get());
 }
 
 FormantSection::~FormantSection() {

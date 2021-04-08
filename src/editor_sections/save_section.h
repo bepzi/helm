@@ -55,20 +55,20 @@ class SaveSection : public Overlay, public TextEditor::Listener,
     void rescanBanks();
     void rescanFolders();
 
-    ScopedPointer<TextEditor> patch_name_;
-    ScopedPointer<TextEditor> author_;
-    ScopedPointer<TextEditor> add_bank_name_;
-    ScopedPointer<TextEditor> add_folder_name_;
+    std::unique_ptr<TextEditor> patch_name_;
+    std::unique_ptr<TextEditor> author_;
+    std::unique_ptr<TextEditor> add_bank_name_;
+    std::unique_ptr<TextEditor> add_folder_name_;
 
-    ScopedPointer<ListBox> banks_view_;
-    ScopedPointer<ListBox> folders_view_;
-    ScopedPointer<FileListBoxModel> banks_model_;
-    ScopedPointer<FileListBoxModel> folders_model_;
+    std::unique_ptr<ListBox> banks_view_;
+    std::unique_ptr<ListBox> folders_view_;
+    std::unique_ptr<FileListBoxModel> banks_model_;
+    std::unique_ptr<FileListBoxModel> folders_model_;
 
-    ScopedPointer<TextButton> save_button_;
-    ScopedPointer<TextButton> cancel_button_;
-    ScopedPointer<TextButton> add_bank_button_;
-    ScopedPointer<TextButton> add_folder_button_;
+    std::unique_ptr<TextButton> save_button_;
+    std::unique_ptr<TextButton> cancel_button_;
+    std::unique_ptr<TextButton> add_bank_button_;
+    std::unique_ptr<TextButton> add_folder_button_;
 
     Rectangle<int> active_rect_;
 

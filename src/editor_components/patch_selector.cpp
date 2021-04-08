@@ -36,27 +36,27 @@ namespace {
 PatchSelector::PatchSelector() : SynthSection("patch_selector"),
                                  browser_(nullptr), save_section_(nullptr), modified_(false) {
   setLookAndFeel(BrowserLookAndFeel::instance());
-  addButton(prev_patch_ = new TextButton("prev_patch"));
+  addButton((prev_patch_ = std::make_unique<TextButton>("prev_patch")).get());
   prev_patch_->setButtonText(TRANS("<"));
   prev_patch_->setColour(TextButton::buttonColourId, Colour(0xff464646));
   prev_patch_->setColour(TextButton::textColourOffId, Colours::white);
 
-  addButton(next_patch_ = new TextButton("next_patch"));
+  addButton((next_patch_ = std::make_unique<TextButton>("next_patch")).get());
   next_patch_->setButtonText(TRANS(">"));
   next_patch_->setColour(TextButton::buttonColourId, Colour(0xff464646));
   next_patch_->setColour(TextButton::textColourOffId, Colours::white);
 
-  addButton(save_ = new TextButton("save"));
+  addButton((save_ = std::make_unique<TextButton>("save")).get());
   save_->setButtonText(TRANS("SAVE"));
   save_->setColour(TextButton::buttonColourId, Colour(0xff303030));
   save_->setColour(TextButton::textColourOffId, Colours::white);
 
-  addButton(export_ = new TextButton("export"));
+  addButton((export_ = std::make_unique<TextButton>("export")).get());
   export_->setButtonText(TRANS("EXPORT"));
   export_->setColour(TextButton::buttonColourId, Colour(0xff303030));
   export_->setColour(TextButton::textColourOffId, Colours::white);
 
-  addButton(browse_ = new TextButton("browse"));
+  addButton((browse_ = std::make_unique<TextButton>("browse")).get());
   browse_->setButtonText(TRANS("BROWSE"));
   browse_->setColour(TextButton::buttonColourId, Colour(0xff303030));
   browse_->setColour(TextButton::textColourOffId, Colours::white);
@@ -145,11 +145,11 @@ void PatchSelector::buttonClicked(Button* clicked_button) {
   if (browser_ == nullptr)
     return;
 
-  if (clicked_button == save_ && save_section_)
+  if (clicked_button == save_.get() && save_section_)
     save_section_->setVisible(true);
-  else if (clicked_button == browse_)
+  else if (clicked_button == browse_.get())
     browser_->setVisible(!browser_->isVisible());
-  else if (clicked_button == export_) {
+  else if (clicked_button == export_.get()) {
     SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
     if (parent == nullptr)
       return;
@@ -158,9 +158,9 @@ void PatchSelector::buttonClicked(Button* clicked_button) {
     synth->exportToFile();
     parent->externalPatchLoaded(synth->getActiveFile());
   }
-  else if (clicked_button == prev_patch_)
+  else if (clicked_button == prev_patch_.get())
     browser_->loadPrevPatch();
-  else if (clicked_button == next_patch_)
+  else if (clicked_button == next_patch_.get())
     browser_->loadNextPatch();
 }
 

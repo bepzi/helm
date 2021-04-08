@@ -33,10 +33,10 @@ class DistortionSection : public SynthSection {
     void resized() override;
 
   private:
-    ScopedPointer<SynthButton> on_;
-    ScopedPointer<TextSelector> type_;
-    ScopedPointer<SynthSlider> drive_;
-    ScopedPointer<SynthSlider> mix_;
+    std::unique_ptr<SynthButton> on_;
+    std::unique_ptr<TextSelector> type_;
+    std::unique_ptr<SynthSlider> drive_;
+    std::unique_ptr<SynthSlider> mix_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DistortionSection)
 };

@@ -31,43 +31,43 @@ LfoSection::LfoSection(String name, std::string value_prepend, bool retrigger, b
     SynthSection(name), can_animate_(can_animate) {
   static const int TEMPO_DRAG_SENSITIVITY = 150;
 
-  retrigger_ = new RetriggerSelector(value_prepend + "_retrigger");
+  retrigger_ = std::make_unique<RetriggerSelector>(value_prepend + "_retrigger");
   retrigger_->setSliderStyle(Slider::LinearBar);
   retrigger_->setStringLookup(mopo::strings::freq_retrigger_styles);
   if (retrigger)
-    addSlider(retrigger_);
+      addSlider(retrigger_.get());
 
-  addSlider(amplitude_ = new SynthSlider(value_prepend + "_amplitude"));
+  addSlider((amplitude_ = std::make_unique<SynthSlider>(value_prepend + "_amplitude")).get());
   amplitude_->setSliderStyle(Slider::LinearBarVertical);
   amplitude_->setBipolar();
   amplitude_->snapToValue(true, 0.0);
 
-  addSlider(frequency_ = new SynthSlider(value_prepend + "_frequency"));
+  addSlider((frequency_ = std::make_unique<SynthSlider>(value_prepend + "_frequency")).get());
   frequency_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   frequency_->setLookAndFeel(TextLookAndFeel::instance());
 
-  addSlider(tempo_ = new SynthSlider(value_prepend + "_tempo"));
+  addSlider((tempo_ = std::make_unique<SynthSlider>(value_prepend + "_tempo")).get());
   tempo_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   tempo_->setStringLookup(mopo::strings::synced_frequencies);
   tempo_->setLookAndFeel(TextLookAndFeel::instance());
   tempo_->setMouseDragSensitivity(TEMPO_DRAG_SENSITIVITY);
 
-  addSlider(sync_ = new TempoSelector(value_prepend + "_sync"));
+  addSlider((sync_ = std::make_unique<TempoSelector>(value_prepend + "_sync")).get());
   sync_->setSliderStyle(Slider::LinearBar);
-  sync_->setTempoSlider(tempo_);
-  sync_->setFreeSlider(frequency_);
+  sync_->setTempoSlider(tempo_.get());
+  sync_->setFreeSlider(frequency_.get());
   sync_->setStringLookup(mopo::strings::freq_sync_styles);
 
-  addSlider(wave_selector_ = new WaveSelector(value_prepend + "_waveform"));
+  addSlider((wave_selector_ = std::make_unique<WaveSelector>(value_prepend + "_waveform")).get());
   wave_selector_->setSliderStyle(Slider::LinearBar);
   wave_selector_->setStringLookup(mopo::strings::waveforms);
 
-  addOpenGLComponent(wave_viewer_ = new OpenGLWaveViewer(WAVE_VIEWER_RESOLUTION));
-  wave_viewer_->setAmplitudeSlider(amplitude_);
-  wave_viewer_->setWaveSlider(wave_selector_);
+  addOpenGLComponent((wave_viewer_ = std::make_unique<OpenGLWaveViewer>(WAVE_VIEWER_RESOLUTION)).get());
+  wave_viewer_->setAmplitudeSlider(amplitude_.get());
+  wave_viewer_->setWaveSlider(wave_selector_.get());
   wave_viewer_->setName(value_prepend);
 
-  addModulationButton(modulation_button_ = new ModulationButton(value_prepend));
+  addModulationButton((modulation_button_ = std::make_unique<ModulationButton>(value_prepend)).get());
   modulation_button_->setLookAndFeel(ModulationLookAndFeel::instance());
 }
 

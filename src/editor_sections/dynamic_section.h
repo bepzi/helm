@@ -19,8 +19,10 @@
 #define DYNAMIC_SECTION_H
 
 #include <JuceHeader.h>
+#include "synth_button.h"
 #include "synth_section.h"
 #include "synth_slider.h"
+#include "text_slider.h"
 
 class DynamicSection : public SynthSection {
   public:
@@ -31,9 +33,9 @@ class DynamicSection : public SynthSection {
     void resized() override;
 
   private:
-    ScopedPointer<SynthSlider> portamento_;
-    ScopedPointer<SynthSlider> portamento_type_;
-    ScopedPointer<ToggleButton> legato_;
+    std::unique_ptr<SynthSlider> portamento_;
+    std::unique_ptr<TextSlider> portamento_type_;
+    std::unique_ptr<SynthButton> legato_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DynamicSection)
 };

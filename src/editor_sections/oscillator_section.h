@@ -33,21 +33,21 @@ class OscillatorSection : public SynthSection {
     void reset() override;
 
   private:
-    ScopedPointer<WaveViewer> wave_viewer_1_;
-    ScopedPointer<WaveViewer> wave_viewer_2_;
-    ScopedPointer<SynthSlider> wave_selector_1_;
-    ScopedPointer<SynthSlider> wave_selector_2_;
-    ScopedPointer<SynthSlider> transpose_1_;
-    ScopedPointer<SynthSlider> transpose_2_;
-    ScopedPointer<SynthSlider> tune_1_;
-    ScopedPointer<SynthSlider> tune_2_;
-    ScopedPointer<SynthSlider> unison_voices_1_;
-    ScopedPointer<SynthSlider> unison_voices_2_;
-    ScopedPointer<SynthSlider> unison_detune_1_;
-    ScopedPointer<SynthSlider> unison_detune_2_;
-    ScopedPointer<ToggleButton> unison_harmonize_1_;
-    ScopedPointer<ToggleButton> unison_harmonize_2_;
-    ScopedPointer<SynthSlider> cross_modulation_;
+    std::unique_ptr<WaveViewer> wave_viewer_1_;
+    std::unique_ptr<WaveViewer> wave_viewer_2_;
+    std::unique_ptr<SynthSlider> wave_selector_1_;
+    std::unique_ptr<SynthSlider> wave_selector_2_;
+    std::unique_ptr<SynthSlider> transpose_1_;
+    std::unique_ptr<SynthSlider> transpose_2_;
+    std::unique_ptr<SynthSlider> tune_1_;
+    std::unique_ptr<SynthSlider> tune_2_;
+    std::unique_ptr<SynthSlider> unison_voices_1_;
+    std::unique_ptr<SynthSlider> unison_voices_2_;
+    std::unique_ptr<SynthSlider> unison_detune_1_;
+    std::unique_ptr<SynthSlider> unison_detune_2_;
+    std::unique_ptr<ToggleButton> unison_harmonize_1_;
+    std::unique_ptr<ToggleButton> unison_harmonize_2_;
+    std::unique_ptr<SynthSlider> cross_modulation_;
 
     Path top_left_cross_path_;
     Path top_right_cross_path_;

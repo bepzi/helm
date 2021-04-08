@@ -28,31 +28,31 @@
 
 DelaySection::DelaySection(String name) : SynthSection(name) {
   static const int TEMPO_DRAG_SENSITIVITY = 150;
-  addSlider(frequency_ = new SynthSlider("delay_frequency"));
+  addSlider((frequency_ = std::make_unique<SynthSlider>("delay_frequency")).get());
   frequency_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   frequency_->setLookAndFeel(TextLookAndFeel::instance());
 
-  addSlider(tempo_ = new SynthSlider("delay_tempo"));
+  addSlider((tempo_ = std::make_unique<SynthSlider>("delay_tempo")).get());
   tempo_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   tempo_->setStringLookup(mopo::strings::synced_frequencies);
   tempo_->setLookAndFeel(TextLookAndFeel::instance());
   tempo_->setMouseDragSensitivity(TEMPO_DRAG_SENSITIVITY);
 
-  addSlider(sync_ = new TempoSelector("delay_sync"));
+  addSlider((sync_ = std::make_unique<TempoSelector>("delay_sync")).get());
   sync_->setSliderStyle(Slider::LinearBar);
-  sync_->setTempoSlider(tempo_);
-  sync_->setFreeSlider(frequency_);
+  sync_->setTempoSlider(tempo_.get());
+  sync_->setFreeSlider(frequency_.get());
   sync_->setStringLookup(mopo::strings::freq_sync_styles);
 
-  addSlider(feedback_ = new SynthSlider("delay_feedback"));
+  addSlider((feedback_ = std::make_unique<SynthSlider>("delay_feedback")).get());
   feedback_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   feedback_->setBipolar();
 
-  addSlider(dry_wet_ = new SynthSlider("delay_dry_wet"));
+  addSlider((dry_wet_ = std::make_unique<SynthSlider>("delay_dry_wet")).get());
   dry_wet_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  addButton(on_ = new SynthButton("delay_on"));
-  setActivator(on_);
+  addButton((on_ = std::make_unique<SynthButton>("delay_on")).get());
+  setActivator(on_.get());
 }
 
 DelaySection::~DelaySection() {
@@ -73,9 +73,9 @@ void DelaySection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(font_size));
-  
-  drawTextForComponent(g, TRANS("FEEDB"), feedback_);
-  drawTextForComponent(g, TRANS("MIX"), dry_wet_);
+
+  drawTextForComponent(g, TRANS("FEEDB"), feedback_.get());
+  drawTextForComponent(g, TRANS("MIX"), dry_wet_.get());
   g.drawText(TRANS("FREQUENCY"),
              frequency_->getBounds().getX() - size_ratio_ * 5.0f,
              feedback_->getBounds().getY() + knob_width + size_ratio_ * 4,

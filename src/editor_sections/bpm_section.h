@@ -31,7 +31,7 @@ class BpmSection : public SynthSection {
     void resized() override;
 
   private:
-    ScopedPointer<SynthSlider> bpm_;
+    std::unique_ptr<SynthSlider> bpm_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BpmSection)
 };

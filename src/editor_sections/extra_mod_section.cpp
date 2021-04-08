@@ -21,22 +21,22 @@
 #include "modulation_look_and_feel.h"
 
 ExtraModSection::ExtraModSection(String name) : SynthSection(name) {
-  addModulationButton(aftertouch_mod_ = new ModulationButton("aftertouch"));
+  addModulationButton((aftertouch_mod_ = std::make_unique<ModulationButton>("aftertouch")).get());
   aftertouch_mod_->setLookAndFeel(ModulationLookAndFeel::instance());
 
-  addModulationButton(note_mod_ = new ModulationButton("note"));
+  addModulationButton((note_mod_ = std::make_unique<ModulationButton>("note")).get());
   note_mod_->setLookAndFeel(ModulationLookAndFeel::instance());
 
-  addModulationButton(velocity_mod_ = new ModulationButton("velocity"));
+  addModulationButton((velocity_mod_ = std::make_unique<ModulationButton>("velocity")).get());
   velocity_mod_->setLookAndFeel(ModulationLookAndFeel::instance());
 
-  addModulationButton(mod_wheel_mod_ = new ModulationButton("mod_wheel"));
+  addModulationButton((mod_wheel_mod_ = std::make_unique<ModulationButton>("mod_wheel")).get());
   mod_wheel_mod_->setLookAndFeel(ModulationLookAndFeel::instance());
 
-  addModulationButton(pitch_wheel_mod_ = new ModulationButton("pitch_wheel"));
+  addModulationButton((pitch_wheel_mod_ = std::make_unique<ModulationButton>("pitch_wheel")).get());
   pitch_wheel_mod_->setLookAndFeel(ModulationLookAndFeel::instance());
 
-  addModulationButton(random_mod_ = new ModulationButton("random"));
+  addModulationButton((random_mod_ = std::make_unique<ModulationButton>("random")).get());
   random_mod_->setLookAndFeel(ModulationLookAndFeel::instance());
 }
 
@@ -60,13 +60,13 @@ void ExtraModSection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(size_ratio_ * 10.0f));
-  
-  drawTextToRightOfComponent(g, aftertouch_mod_, TRANS("AFTERTOUCH"));
-  drawTextToRightOfComponent(g, note_mod_, TRANS("NOTE"));
-  drawTextToRightOfComponent(g, velocity_mod_, TRANS("VELOCITY"));
-  drawTextToRightOfComponent(g, mod_wheel_mod_, TRANS("MOD WHEEL"));
-  drawTextToRightOfComponent(g, pitch_wheel_mod_, TRANS("PITCH WHEEL"));
-  drawTextToRightOfComponent(g, random_mod_, TRANS("RANDOM"));
+
+  drawTextToRightOfComponent(g, aftertouch_mod_.get(), TRANS("AFTERTOUCH"));
+  drawTextToRightOfComponent(g, note_mod_.get(), TRANS("NOTE"));
+  drawTextToRightOfComponent(g, velocity_mod_.get(), TRANS("VELOCITY"));
+  drawTextToRightOfComponent(g, mod_wheel_mod_.get(), TRANS("MOD WHEEL"));
+  drawTextToRightOfComponent(g, pitch_wheel_mod_.get(), TRANS("PITCH WHEEL"));
+  drawTextToRightOfComponent(g, random_mod_.get(), TRANS("RANDOM"));
 }
 
 void ExtraModSection::resized() {

@@ -35,7 +35,7 @@ class Fonts {
   private:
     Fonts();
 
-    static ScopedPointer<Fonts> instance_;
+    static std::unique_ptr<Fonts> instance_;
 
     Font proportional_regular_;
     Font proportional_light_;

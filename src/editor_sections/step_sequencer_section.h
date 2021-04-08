@@ -38,14 +38,14 @@ class StepSequencerSection : public SynthSection {
     void createStepSequencerSliders();
 
     std::vector<Slider*> sequencer_sliders_;
-    ScopedPointer<GraphicalStepSequencer> step_sequencer_;
-    ScopedPointer<RetriggerSelector> retrigger_;
-    ScopedPointer<SynthSlider> num_steps_;
-    ScopedPointer<SynthSlider> frequency_;
-    ScopedPointer<SynthSlider> tempo_;
-    ScopedPointer<TempoSelector> sync_;
-    ScopedPointer<SynthSlider> smoothing_;
-    ScopedPointer<ModulationButton> modulation_button_;
+    std::unique_ptr<GraphicalStepSequencer> step_sequencer_;
+    std::unique_ptr<RetriggerSelector> retrigger_;
+    std::unique_ptr<SynthSlider> num_steps_;
+    std::unique_ptr<SynthSlider> frequency_;
+    std::unique_ptr<SynthSlider> tempo_;
+    std::unique_ptr<TempoSelector> sync_;
+    std::unique_ptr<SynthSlider> smoothing_;
+    std::unique_ptr<ModulationButton> modulation_button_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StepSequencerSection)
 };

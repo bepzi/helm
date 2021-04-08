@@ -32,10 +32,10 @@ class ReverbSection : public SynthSection {
     void resized() override;
 
   private:
-    ScopedPointer<SynthButton> on_;
-    ScopedPointer<SynthSlider> feedback_;
-    ScopedPointer<SynthSlider> damping_;
-    ScopedPointer<SynthSlider> dry_wet_;
+    std::unique_ptr<SynthButton> on_;
+    std::unique_ptr<SynthSlider> feedback_;
+    std::unique_ptr<SynthSlider> damping_;
+    std::unique_ptr<SynthSlider> dry_wet_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbSection)
 };

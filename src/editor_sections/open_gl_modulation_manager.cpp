@@ -46,10 +46,10 @@ OpenGLModulationManager::OpenGLModulationManager(
 
   current_modulator_ = "";
 
-  polyphonic_destinations_ = new Component();
+  polyphonic_destinations_ = std::make_unique<Component>();
   polyphonic_destinations_->setInterceptsMouseClicks(false, true);
 
-  monophonic_destinations_ = new Component();
+  monophonic_destinations_ = std::make_unique<Component>();
   monophonic_destinations_->setInterceptsMouseClicks(false, true);
 
   for (auto& mod_button : modulation_buttons_) {
@@ -112,8 +112,8 @@ OpenGLModulationManager::OpenGLModulationManager(
     ++i;
   }
 
-  addAndMakeVisible(polyphonic_destinations_);
-  addAndMakeVisible(monophonic_destinations_);
+  addAndMakeVisible(polyphonic_destinations_.get());
+  addAndMakeVisible(monophonic_destinations_.get());
 
   forgetModulator();
 }
@@ -218,16 +218,16 @@ void OpenGLModulationManager::init(OpenGLContext& open_gl_context) {
   const char* vertex_shader = Shaders::getShader(Shaders::kModulationVertex);
   const char* fragment_shader = Shaders::getShader(Shaders::kModulationFragment);
 
-  shader_ = new OpenGLShaderProgram(open_gl_context);
+  shader_ = std::make_unique<OpenGLShaderProgram>(open_gl_context);
 
   if (shader_->addVertexShader(OpenGLHelpers::translateVertexShaderToV3(vertex_shader)) &&
       shader_->addFragmentShader(OpenGLHelpers::translateFragmentShaderToV3(fragment_shader)) &&
       shader_->link()) {
     shader_->use();
-    position_ = new OpenGLShaderProgram::Attribute(*shader_, "position");
-    coordinates_ = new OpenGLShaderProgram::Attribute(*shader_, "coordinates");
-    range_ = new OpenGLShaderProgram::Attribute(*shader_, "range");
-    radius_uniform_ = new OpenGLShaderProgram::Uniform(*shader_, "radius");
+    position_ = std::make_unique<OpenGLShaderProgram::Attribute>(*shader_, "position");
+    coordinates_ = std::make_unique<OpenGLShaderProgram::Attribute>(*shader_, "coordinates");
+    range_ = std::make_unique<OpenGLShaderProgram::Attribute>(*shader_, "range");
+    radius_uniform_ = std::make_unique<OpenGLShaderProgram::Uniform>(*shader_, "radius");
   }
 }
 
@@ -314,7 +314,7 @@ void OpenGLModulationManager::modulationsChanged(const std::string& destination)
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   if (parent == nullptr)
     return;
-  
+
   int num_modulations = parent->getSynth()->getNumModulations(destination);
   meter_lookup_[destination]->setModulated(num_modulations);
   meter_lookup_[destination]->setVisible(num_modulations);

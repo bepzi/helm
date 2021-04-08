@@ -35,65 +35,65 @@ OscillatorSection::OscillatorSection(String name) : SynthSection(name) {
   static const int UNISON_DRAG_SENSITIVITY = 100;
   static const int TRANSPOSE_MOUSE_SENSITIVITY = 800;
 
-  addSlider(wave_selector_1_ = new WaveSelector("osc_1_waveform"));
+  addSlider((wave_selector_1_ = std::make_unique<WaveSelector>("osc_1_waveform")).get());
   wave_selector_1_->setSliderStyle(Slider::LinearBar);
   wave_selector_1_->setStringLookup(mopo::strings::waveforms);
   wave_selector_1_->setPopupPlacement(BubbleComponent::above);
 
-  addSlider(wave_selector_2_ = new WaveSelector("osc_2_waveform"));
+  addSlider((wave_selector_2_ = std::make_unique<WaveSelector>("osc_2_waveform")).get());
   wave_selector_2_->setSliderStyle(Slider::LinearBar);
   wave_selector_2_->setStringLookup(mopo::strings::waveforms);
   wave_selector_2_->setPopupPlacement(BubbleComponent::above);
 
-  addAndMakeVisible(wave_viewer_1_ = new WaveViewer(WAVE_RESOLUTION));
-  wave_viewer_1_->setWaveSlider(wave_selector_1_);
-  addAndMakeVisible(wave_viewer_2_ = new WaveViewer(WAVE_RESOLUTION));
-  wave_viewer_2_->setWaveSlider(wave_selector_2_);
+  addAndMakeVisible((wave_viewer_1_ = std::make_unique<WaveViewer>(WAVE_RESOLUTION)).get());
+  wave_viewer_1_->setWaveSlider(wave_selector_1_.get());
+  addAndMakeVisible((wave_viewer_2_ = std::make_unique<WaveViewer>(WAVE_RESOLUTION)).get());
+  wave_viewer_2_->setWaveSlider(wave_selector_2_.get());
 
-  addSlider(cross_modulation_ = new SynthSlider("cross_modulation"));
+  addSlider((cross_modulation_ = std::make_unique<SynthSlider>("cross_modulation")).get());
   cross_modulation_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  addSlider(transpose_1_ = new SynthSlider("osc_1_transpose"));
+  addSlider((transpose_1_ = std::make_unique<SynthSlider>("osc_1_transpose")).get());
   transpose_1_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   transpose_1_->setBipolar();
   transpose_1_->setMouseDragSensitivity(TRANSPOSE_MOUSE_SENSITIVITY);
 
-  addSlider(transpose_2_ = new SynthSlider("osc_2_transpose"));
+  addSlider((transpose_2_ = std::make_unique<SynthSlider>("osc_2_transpose")).get());
   transpose_2_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   transpose_2_->setBipolar();
   transpose_2_->setMouseDragSensitivity(TRANSPOSE_MOUSE_SENSITIVITY);
 
-  addSlider(tune_1_ = new SynthSlider("osc_1_tune"));
+  addSlider((tune_1_ = std::make_unique<SynthSlider>("osc_1_tune")).get());
   tune_1_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   tune_1_->setBipolar();
 
-  addSlider(tune_2_ = new SynthSlider("osc_2_tune"));
+  addSlider((tune_2_ = std::make_unique<SynthSlider>("osc_2_tune")).get());
   tune_2_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   tune_2_->setBipolar();
 
-  addSlider(unison_detune_1_ = new SynthSlider("osc_1_unison_detune"));
+  addSlider((unison_detune_1_ = std::make_unique<SynthSlider>("osc_1_unison_detune")).get());
   unison_detune_1_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   unison_detune_1_->setLookAndFeel(TextLookAndFeel::instance());
 
-  addSlider(unison_detune_2_ = new SynthSlider("osc_2_unison_detune"));
+  addSlider((unison_detune_2_ = std::make_unique<SynthSlider>("osc_2_unison_detune")).get());
   unison_detune_2_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   unison_detune_2_->setLookAndFeel(TextLookAndFeel::instance());
 
-  addSlider(unison_voices_1_ = new SynthSlider("osc_1_unison_voices"));
+  addSlider((unison_voices_1_ = std::make_unique<SynthSlider>("osc_1_unison_voices")).get());
   unison_voices_1_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   unison_voices_1_->setLookAndFeel(TextLookAndFeel::instance());
   unison_voices_1_->setMouseDragSensitivity(UNISON_DRAG_SENSITIVITY);
 
-  addSlider(unison_voices_2_ = new SynthSlider("osc_2_unison_voices"));
+  addSlider((unison_voices_2_ = std::make_unique<SynthSlider>("osc_2_unison_voices")).get());
   unison_voices_2_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   unison_voices_2_->setLookAndFeel(TextLookAndFeel::instance());
   unison_voices_2_->setMouseDragSensitivity(UNISON_DRAG_SENSITIVITY);
 
-  addButton(unison_harmonize_1_ = new SynthButton("unison_1_harmonize"));
+  addButton((unison_harmonize_1_ = std::make_unique<SynthButton>("unison_1_harmonize")).get());
   unison_harmonize_1_->setLookAndFeel(TextLookAndFeel::instance());
   unison_harmonize_1_->setButtonText("H");
 
-  addButton(unison_harmonize_2_ = new SynthButton("unison_2_harmonize"));
+  addButton((unison_harmonize_2_ = std::make_unique<SynthButton>("unison_2_harmonize")).get());
   unison_harmonize_2_->setLookAndFeel(TextLookAndFeel::instance());
   unison_harmonize_2_->setButtonText("H");
 }
@@ -146,14 +146,14 @@ void OscillatorSection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(size_ratio_ * 10.0f));
-  
-  drawTextForComponent(g, TRANS("MOD"), cross_modulation_);
-  drawTextForComponent(g, TRANS("TRANS"), transpose_1_);
-  drawTextForComponent(g, TRANS("TRANS"), transpose_2_);
-  drawTextForComponent(g, TRANS("TUNE"), tune_1_);
-  drawTextForComponent(g, TRANS("TUNE"), tune_2_);
-  drawTextForComponent(g, TRANS("UNISON"), unison_detune_1_);
-  drawTextForComponent(g, TRANS("UNISON"), unison_detune_2_);
+
+  drawTextForComponent(g, TRANS("MOD"), cross_modulation_.get());
+  drawTextForComponent(g, TRANS("TRANS"), transpose_1_.get());
+  drawTextForComponent(g, TRANS("TRANS"), transpose_2_.get());
+  drawTextForComponent(g, TRANS("TUNE"), tune_1_.get());
+  drawTextForComponent(g, TRANS("TUNE"), tune_2_.get());
+  drawTextForComponent(g, TRANS("UNISON"), unison_detune_1_.get());
+  drawTextForComponent(g, TRANS("UNISON"), unison_detune_2_.get());
 
   component_shadow.drawForRectangle(g, wave_viewer_1_->getBounds());
   component_shadow.drawForRectangle(g, wave_viewer_2_->getBounds());

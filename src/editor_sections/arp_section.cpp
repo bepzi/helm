@@ -31,35 +31,35 @@
 ArpSection::ArpSection(String name) : SynthSection(name) {
   static const int INDEX_DRAG_SENSITIVITY = 60;
 
-  addSlider(frequency_ = new SynthSlider("arp_frequency"));
+  addSlider((frequency_ = std::make_unique<SynthSlider>("arp_frequency")).get());
   frequency_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   frequency_->setLookAndFeel(TextLookAndFeel::instance());
 
-  addSlider(tempo_ = new SynthSlider("arp_tempo"));
+  addSlider((tempo_ = std::make_unique<SynthSlider>("arp_tempo")).get());
   tempo_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   tempo_->setLookAndFeel(TextLookAndFeel::instance());
   tempo_->setStringLookup(mopo::strings::synced_frequencies);
 
-  addSlider(sync_ = new TempoSelector("arp_sync"));
+  addSlider((sync_ = std::make_unique<TempoSelector>("arp_sync")).get());
   sync_->setStringLookup(mopo::strings::freq_sync_styles);
-  sync_->setTempoSlider(tempo_);
-  sync_->setFreeSlider(frequency_);
+  sync_->setTempoSlider(tempo_.get());
+  sync_->setFreeSlider(frequency_.get());
 
-  addSlider(gate_ = new SynthSlider("arp_gate"));
+  addSlider((gate_ = std::make_unique<SynthSlider>("arp_gate")).get());
   gate_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  addSlider(octaves_ = new SynthSlider("arp_octaves"));
+  addSlider((octaves_ = std::make_unique<SynthSlider>("arp_octaves")).get());
   octaves_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   octaves_->setMouseDragSensitivity(INDEX_DRAG_SENSITIVITY);
 
-  addSlider(pattern_ = new TextSelector("arp_pattern"));
+  addSlider((pattern_ = std::make_unique<TextSelector>("arp_pattern")).get());
   pattern_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   pattern_->setStringLookup(mopo::strings::arp_patterns);
   pattern_->setMouseDragSensitivity(INDEX_DRAG_SENSITIVITY);
   pattern_->setLookAndFeel(TextLookAndFeel::instance());
 
-  addButton(on_ = new SynthButton("arp_on"));
-  setActivator(on_);
+  addButton((on_ = std::make_unique<SynthButton>("arp_on")).get());
+  setActivator(on_.get());
 }
 
 ArpSection::~ArpSection() {
@@ -87,10 +87,10 @@ void ArpSection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(size_ratio_ * 10.0f));
-  
-  drawTextForComponent(g, TRANS("GATE"), gate_);
-  drawTextForComponent(g, TRANS("OCTAVES"), octaves_);
-  
+
+  drawTextForComponent(g, TRANS("GATE"), gate_.get());
+  drawTextForComponent(g, TRANS("OCTAVES"), octaves_.get());
+
   int font_y = gate_->getBounds().getY() + knob_width + size_ratio_ * 4;
   g.drawText(TRANS("FREQUENCY"),
              frequency_->getBounds().getX() - size_ratio_ * 5, font_y,

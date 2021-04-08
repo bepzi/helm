@@ -25,19 +25,19 @@
 #define TEXT_SECTION_WIDTH 18
 
 MixerSection::MixerSection(String name) : SynthSection(name) {
-  addSlider(osc_1_ = new SynthSlider("osc_1_volume"));
+  addSlider((osc_1_ = std::make_unique<SynthSlider>("osc_1_volume")).get());
   osc_1_->setSliderStyle(Slider::LinearBarVertical);
   osc_1_->flipColoring(true);
 
-  addSlider(osc_2_ = new SynthSlider("osc_2_volume"));
+  addSlider((osc_2_ = std::make_unique<SynthSlider>("osc_2_volume")).get());
   osc_2_->setSliderStyle(Slider::LinearBarVertical);
   osc_2_->flipColoring(true);
 
-  addSlider(sub_ = new SynthSlider("sub_volume"));
+  addSlider((sub_ = std::make_unique<SynthSlider>("sub_volume")).get());
   sub_->setSliderStyle(Slider::LinearBarVertical);
   sub_->flipColoring(true);
 
-  addSlider(noise_ = new SynthSlider("noise_volume"));
+  addSlider((noise_ = std::make_unique<SynthSlider>("noise_volume")).get());
   noise_->setSliderStyle(Slider::LinearBarVertical);
   noise_->flipColoring(true);
 }

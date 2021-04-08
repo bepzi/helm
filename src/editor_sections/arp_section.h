@@ -33,13 +33,13 @@ class ArpSection : public SynthSection {
     void resized() override;
 
   private:
-    ScopedPointer<SynthSlider> frequency_;
-    ScopedPointer<SynthSlider> tempo_;
-    ScopedPointer<TempoSelector> sync_;
-    ScopedPointer<SynthSlider> gate_;
-    ScopedPointer<SynthSlider> octaves_;
-    ScopedPointer<SynthSlider> pattern_;
-    ScopedPointer<SynthButton> on_;
+    std::unique_ptr<SynthSlider> frequency_;
+    std::unique_ptr<SynthSlider> tempo_;
+    std::unique_ptr<TempoSelector> sync_;
+    std::unique_ptr<SynthSlider> gate_;
+    std::unique_ptr<SynthSlider> octaves_;
+    std::unique_ptr<SynthSlider> pattern_;
+    std::unique_ptr<SynthButton> on_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArpSection)
 };

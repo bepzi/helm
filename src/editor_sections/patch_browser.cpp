@@ -78,40 +78,40 @@ PatchBrowser::PatchBrowser() : Overlay("patch_browser") {
   save_section_ = nullptr;
   delete_section_ = nullptr;
 
-  banks_model_ = new FileListBoxModel();
+  banks_model_ = std::make_unique<FileListBoxModel>();
   banks_model_->setListener(this);
   Array<File> bank_locations;
   File bank_dir = LoadSave::getBankDirectory();
   bank_locations.add(bank_dir);
   banks_model_->rescanFiles(bank_locations);
 
-  banks_view_ = new ListBox("banks", banks_model_);
+  banks_view_ = std::make_unique<ListBox>("banks", banks_model_.get());
   banks_view_->setMultipleSelectionEnabled(false);
   banks_view_->setClickingTogglesRowSelection(true);
   banks_view_->updateContent();
-  addAndMakeVisible(banks_view_);
+  addAndMakeVisible(banks_view_.get());
 
-  folders_model_ = new FileListBoxModel();
+  folders_model_ = std::make_unique<FileListBoxModel>();
   folders_model_->setListener(this);
 
-  folders_view_ = new ListBox("folders", folders_model_);
+  folders_view_ = std::make_unique<ListBox>("folders", folders_model_.get());
   folders_view_->setMultipleSelectionEnabled(true);
   folders_view_->setClickingTogglesRowSelection(true);
   folders_view_->updateContent();
-  addAndMakeVisible(folders_view_);
+  addAndMakeVisible(folders_view_.get());
 
-  patches_model_ = new FileListBoxModel();
+  patches_model_ = std::make_unique<FileListBoxModel>();
   patches_model_->setListener(this);
 
-  patches_view_ = new ListBox("patches", patches_model_);
+  patches_view_ = std::make_unique<ListBox>("patches", patches_model_.get());
   patches_view_->updateContent();
-  addAndMakeVisible(patches_view_);
+  addAndMakeVisible(patches_view_.get());
 
   banks_view_->setColour(ListBox::backgroundColourId, Colour(0xff323232));
   folders_view_->setColour(ListBox::backgroundColourId, Colour(0xff323232));
   patches_view_->setColour(ListBox::backgroundColourId, Colour(0xff323232));
 
-  search_box_ = new TextEditor("Search");
+  search_box_ = std::make_unique<TextEditor>("Search");
   search_box_->addListener(this);
   search_box_->setSelectAllWhenFocused(true);
   search_box_->setTextToShowWhenEmpty(TRANS("Search"), Colour(0xff777777));
@@ -123,49 +123,49 @@ PatchBrowser::PatchBrowser() : Overlay("patch_browser") {
   search_box_->setColour(TextEditor::backgroundColourId, Colour(0xff323232));
   search_box_->setColour(TextEditor::outlineColourId, Colour(0xff888888));
   search_box_->setColour(TextEditor::focusedOutlineColourId, Colour(0xff888888));
-  addAndMakeVisible(search_box_);
+  addAndMakeVisible(search_box_.get());
 
-  import_bank_button_ = new TextButton(TRANS("Import Bank"));
+  import_bank_button_ = std::make_unique<TextButton>(TRANS("Import Bank"));
   import_bank_button_->addListener(this);
-  addAndMakeVisible(import_bank_button_);
+  addAndMakeVisible(import_bank_button_.get());
 
-  export_bank_button_ = new TextButton(TRANS("Export Bank"));
+  export_bank_button_ = std::make_unique<TextButton>(TRANS("Export Bank"));
   export_bank_button_->addListener(this);
-  addAndMakeVisible(export_bank_button_);
+  addAndMakeVisible(export_bank_button_.get());
   export_bank_button_->setEnabled(false);
 
-  selectedFilesChanged(banks_model_);
-  selectedFilesChanged(folders_model_);
+  selectedFilesChanged(banks_model_.get());
+  selectedFilesChanged(folders_model_.get());
 
-  cc_license_link_ = new HyperlinkButton("CC-BY",
+  cc_license_link_ = std::make_unique<HyperlinkButton>("CC-BY",
                                          URL("https://creativecommons.org/licenses/by/4.0/"));
   cc_license_link_->setFont(Fonts::instance()->monospace().withPointHeight(12.0f),
                             false, Justification::centredLeft);
   cc_license_link_->setColour(HyperlinkButton::textColourId, Colour(0xffffd740));
-  addAndMakeVisible(cc_license_link_);
+  addAndMakeVisible(cc_license_link_.get());
 
-  gpl_license_link_ = new HyperlinkButton("GPL-3",
+  gpl_license_link_ = std::make_unique<HyperlinkButton>("GPL-3",
                                           URL("http://www.gnu.org/licenses/gpl-3.0.en.html"));
   gpl_license_link_->setFont(Fonts::instance()->monospace().withPointHeight(12.0f),
                              false, Justification::centredLeft);
   gpl_license_link_->setColour(HyperlinkButton::textColourId, Colour(0xffffd740));
-  addAndMakeVisible(gpl_license_link_);
+  addAndMakeVisible(gpl_license_link_.get());
 
-  save_as_button_ = new TextButton(TRANS("Save Patch As"));
+  save_as_button_ = std::make_unique<TextButton>(TRANS("Save Patch As"));
   save_as_button_->addListener(this);
-  addAndMakeVisible(save_as_button_);
+  addAndMakeVisible(save_as_button_.get());
 
-  delete_patch_button_ = new TextButton(TRANS("Delete Patch"));
+  delete_patch_button_ = std::make_unique<TextButton>(TRANS("Delete Patch"));
   delete_patch_button_->addListener(this);
-  addAndMakeVisible(delete_patch_button_);
+  addAndMakeVisible(delete_patch_button_.get());
 
-  hide_button_ = new TextButton("X");
+  hide_button_ = std::make_unique<TextButton>("X");
   hide_button_->addListener(this);
-  addAndMakeVisible(hide_button_);
+  addAndMakeVisible(hide_button_.get());
 
-  done_button_ = new TextButton("Done");
+  done_button_ = std::make_unique<TextButton>("Done");
   done_button_->addListener(this);
-  addAndMakeVisible(done_button_);
+  addAndMakeVisible(done_button_.get());
 
   addKeyListener(this);
 }
@@ -293,13 +293,13 @@ void PatchBrowser::visibilityChanged() {
 }
 
 void PatchBrowser::selectedFilesChanged(FileListBoxModel* model) {
-  if (model == banks_model_) {
+  if (model == banks_model_.get()) {
     scanFolders();
     export_bank_button_->setEnabled(banks_view_->getSelectedRows().size() == 1);
   }
-  if (model == banks_model_ || model == folders_model_)
+  if (model == banks_model_.get() || model == folders_model_.get())
     scanPatches();
-  else if (model == patches_model_) {
+  else if (model == patches_model_.get()) {
     SparseSet<int> selected_rows = patches_view_->getSelectedRows();
     delete_patch_button_->setEnabled(selected_rows.size());
 
@@ -342,23 +342,23 @@ void PatchBrowser::fileDeleted(File saved_file) {
 }
 
 void PatchBrowser::buttonClicked(Button* clicked_button) {
-  if (clicked_button == save_as_button_ && save_section_)
+  if (clicked_button == save_as_button_.get() && save_section_)
     save_section_->setVisible(true);
-  else if (clicked_button == delete_patch_button_ && delete_section_) {
+  else if (clicked_button == delete_patch_button_.get() && delete_section_) {
     File selected_patch = getSelectedPatch();
     if (selected_patch.exists()) {
       delete_section_->setFileToDelete(selected_patch);
       delete_section_->setVisible(true);
     }
   }
-  else if (clicked_button == hide_button_ || clicked_button == done_button_)
+  else if (clicked_button == hide_button_.get() || clicked_button == done_button_.get())
     setVisible(false);
-  else if (clicked_button == import_bank_button_) {
+  else if (clicked_button == import_bank_button_.get()) {
     LoadSave::importBank();
     scanAll();
   }
-  else if (clicked_button == export_bank_button_) {
-    Array<File> banks = getFoldersToScan(banks_view_, banks_model_);
+  else if (clicked_button == export_bank_button_.get()) {
+    Array<File> banks = getFoldersToScan(banks_view_.get(), banks_model_.get());
     if (banks.size())
       LoadSave::exportBank(banks[0].getFileName());
   }
@@ -482,30 +482,30 @@ void PatchBrowser::setDeleteSection(DeleteSection* delete_section) {
 void PatchBrowser::scanBanks() {
   Array<File> top_level;
   top_level.add(LoadSave::getBankDirectory());
-  Array<File> banks_selected = getSelectedFolders(banks_view_, banks_model_);
+  Array<File> banks_selected = getSelectedFolders(banks_view_.get(), banks_model_.get());
 
   banks_model_->rescanFiles(top_level);
   banks_view_->updateContent();
-  setSelectedRows(banks_view_, banks_model_, banks_selected);
+  setSelectedRows(banks_view_.get(), banks_model_.get(), banks_selected);
 }
 
 void PatchBrowser::scanFolders() {
-  Array<File> banks = getFoldersToScan(banks_view_, banks_model_);
-  Array<File> folders_selected = getSelectedFolders(folders_view_, folders_model_);
+  Array<File> banks = getFoldersToScan(banks_view_.get(), banks_model_.get());
+  Array<File> folders_selected = getSelectedFolders(folders_view_.get(), folders_model_.get());
 
   folders_model_->rescanFiles(banks);
   folders_view_->updateContent();
-  setSelectedRows(folders_view_, folders_model_, folders_selected);
+  setSelectedRows(folders_view_.get(), folders_model_.get(), folders_selected);
 }
 
 void PatchBrowser::scanPatches() {
-  Array<File> folders = getFoldersToScan(folders_view_, folders_model_);
-  Array<File> patches_selected = getSelectedFolders(patches_view_, patches_model_);
+  Array<File> folders = getFoldersToScan(folders_view_.get(), folders_model_.get());
+  Array<File> patches_selected = getSelectedFolders(patches_view_.get(), patches_model_.get());
 
   String search = "*" + search_box_->getText() + "*." + mopo::PATCH_EXTENSION;
   patches_model_->rescanFiles(folders, search, true);
   patches_view_->updateContent();
-  setSelectedRows(patches_view_, patches_model_, patches_selected);
+  setSelectedRows(patches_view_.get(), patches_model_.get(), patches_selected);
 }
 
 void PatchBrowser::scanAll() {

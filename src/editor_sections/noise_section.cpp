@@ -22,7 +22,7 @@
 #define KNOB_WIDTH 40
 
 NoiseSection::NoiseSection(String name) : SynthSection(name) {
-  addSlider(volume_ = new SynthSlider("noise_volume"));
+  addSlider((volume_ = std::make_unique<SynthSlider>("noise_volume")).get());
   volume_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 }
 
@@ -36,7 +36,7 @@ void NoiseSection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(10.0f));
-  drawTextForComponent(g, TRANS("AMP"), volume_);
+  drawTextForComponent(g, TRANS("AMP"), volume_.get());
 }
 
 void NoiseSection::resized() {

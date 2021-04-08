@@ -26,17 +26,17 @@
 #define WAVE_SECTION_WIDTH 100
 
 SubSection::SubSection(String name) : SynthSection(name) {
-  addSlider(wave_selector_ = new WaveSelector("sub_waveform"));
+  addSlider((wave_selector_ = std::make_unique<WaveSelector>("sub_waveform")).get());
   wave_selector_->setSliderStyle(Slider::LinearBar);
   wave_selector_->setStringLookup(mopo::strings::waveforms);
 
-  addAndMakeVisible(wave_viewer_ = new WaveViewer(WAVE_VIEWER_RESOLUTION));
-  wave_viewer_->setWaveSlider(wave_selector_);
+  addAndMakeVisible((wave_viewer_ = std::make_unique<WaveViewer>(WAVE_VIEWER_RESOLUTION)).get());
+  wave_viewer_->setWaveSlider(wave_selector_.get());
 
-  addSlider(shuffle_ = new SynthSlider("sub_shuffle"));
+  addSlider((shuffle_ = std::make_unique<SynthSlider>("sub_shuffle")).get());
   shuffle_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  addButton(sub_octave_ = new SynthButton("sub_octave"));
+  addButton((sub_octave_ = std::make_unique<SynthButton>("sub_octave")).get());
   sub_octave_->setLookAndFeel(TextLookAndFeel::instance());
   sub_octave_->setButtonText("-OCT");
 }
@@ -51,7 +51,7 @@ void SubSection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(size_ratio_ * 10.0f));
-  drawTextForComponent(g, TRANS("SHUFFLE"), shuffle_);
+  drawTextForComponent(g, TRANS("SHUFFLE"), shuffle_.get());
 }
 
 void SubSection::resized() {

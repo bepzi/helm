@@ -34,18 +34,18 @@
 
 SaveSection::SaveSection(String name) : Overlay(name) {
   listener_ = nullptr;
-  banks_model_ = new FileListBoxModel();
+  banks_model_ = std::make_unique<FileListBoxModel>();
   banks_model_->setListener(this);
-  folders_model_ = new FileListBoxModel();
-  banks_view_ = new ListBox("banks", banks_model_);
-  folders_view_ = new ListBox("folders", folders_model_);
+  folders_model_ = std::make_unique<FileListBoxModel>();
+  banks_view_ = std::make_unique<ListBox>("banks", banks_model_.get());
+  folders_view_ = std::make_unique<ListBox>("folders", folders_model_.get());
   rescanFolders();
   banks_view_->setColour(ListBox::backgroundColourId, Colour(0xff323232));
   folders_view_->setColour(ListBox::backgroundColourId, Colour(0xff323232));
-  addAndMakeVisible(banks_view_);
-  addAndMakeVisible(folders_view_);
+  addAndMakeVisible(banks_view_.get());
+  addAndMakeVisible(folders_view_.get());
 
-  patch_name_ = new TextEditor("Patch Name");
+  patch_name_ = std::make_unique<TextEditor>("Patch Name");
   patch_name_->addListener(this);
   patch_name_->setTextToShowWhenEmpty(TRANS("Patch Name"), Colour(0xff777777));
   patch_name_->setFont(Fonts::instance()->monospace().withPointHeight(16.0f));
@@ -56,9 +56,9 @@ SaveSection::SaveSection(String name) : Overlay(name) {
   patch_name_->setColour(TextEditor::backgroundColourId, Colour(0xff323232));
   patch_name_->setColour(TextEditor::outlineColourId, Colour(0xff888888));
   patch_name_->setColour(TextEditor::focusedOutlineColourId, Colour(0xff888888));
-  addAndMakeVisible(patch_name_);
+  addAndMakeVisible(patch_name_.get());
 
-  author_ = new TextEditor("Author");
+  author_ = std::make_unique<TextEditor>("Author");
   author_->addListener(this);
   author_->setTextToShowWhenEmpty(TRANS("Author"), Colour(0xff777777));
   author_->setFont(Fonts::instance()->monospace().withPointHeight(16.0f));
@@ -69,9 +69,9 @@ SaveSection::SaveSection(String name) : Overlay(name) {
   author_->setColour(TextEditor::backgroundColourId, Colour(0xff323232));
   author_->setColour(TextEditor::outlineColourId, Colour(0xff888888));
   author_->setColour(TextEditor::focusedOutlineColourId, Colour(0xff888888));
-  addAndMakeVisible(author_);
+  addAndMakeVisible(author_.get());
 
-  add_bank_name_ = new TextEditor("Add Bank");
+  add_bank_name_ = std::make_unique<TextEditor>("Add Bank");
   add_bank_name_->addListener(this);
   add_bank_name_->setTextToShowWhenEmpty(TRANS("New Bank"), Colour(0xff777777));
   add_bank_name_->setFont(Fonts::instance()->monospace().withPointHeight(12.0f));
@@ -82,9 +82,9 @@ SaveSection::SaveSection(String name) : Overlay(name) {
   add_bank_name_->setColour(TextEditor::backgroundColourId, Colour(0xff323232));
   add_bank_name_->setColour(TextEditor::outlineColourId, Colour(0xff888888));
   add_bank_name_->setColour(TextEditor::focusedOutlineColourId, Colour(0xff888888));
-  addAndMakeVisible(add_bank_name_);
+  addAndMakeVisible(add_bank_name_.get());
 
-  add_folder_name_ = new TextEditor("Add Folder");
+  add_folder_name_ = std::make_unique<TextEditor>("Add Folder");
   add_folder_name_->addListener(this);
   add_folder_name_->setTextToShowWhenEmpty(TRANS("New Folder"), Colour(0xff777777));
   add_folder_name_->setFont(Fonts::instance()->monospace().withPointHeight(12.0f));
@@ -95,23 +95,23 @@ SaveSection::SaveSection(String name) : Overlay(name) {
   add_folder_name_->setColour(TextEditor::backgroundColourId, Colour(0xff323232));
   add_folder_name_->setColour(TextEditor::outlineColourId, Colour(0xff888888));
   add_folder_name_->setColour(TextEditor::focusedOutlineColourId, Colour(0xff888888));
-  addAndMakeVisible(add_folder_name_);
+  addAndMakeVisible(add_folder_name_.get());
 
-  save_button_ = new TextButton(TRANS("Save"));
+  save_button_ = std::make_unique<TextButton>(TRANS("Save"));
   save_button_->addListener(this);
-  addAndMakeVisible(save_button_);
+  addAndMakeVisible(save_button_.get());
 
-  cancel_button_ = new TextButton(TRANS("Cancel"));
+  cancel_button_ = std::make_unique<TextButton>(TRANS("Cancel"));
   cancel_button_->addListener(this);
-  addAndMakeVisible(cancel_button_);
+  addAndMakeVisible(cancel_button_.get());
 
-  add_bank_button_ = new TextButton("+");
+  add_bank_button_ = std::make_unique<TextButton>("+");
   add_bank_button_->addListener(this);
-  addAndMakeVisible(add_bank_button_);
+  addAndMakeVisible(add_bank_button_.get());
 
-  add_folder_button_ = new TextButton("+");
+  add_folder_button_ = std::make_unique<TextButton>("+");
   add_folder_button_->addListener(this);
-  addAndMakeVisible(add_folder_button_);
+  addAndMakeVisible(add_folder_button_.get());
 }
 
 void SaveSection::paint(Graphics& g) {
@@ -205,25 +205,25 @@ void SaveSection::mouseUp(const MouseEvent &e) {
 }
 
 void SaveSection::textEditorReturnKeyPressed(TextEditor& editor) {
-  if (&editor == add_folder_name_)
+  if (&editor == add_folder_name_.get())
     createNewFolder();
   else
     save();
 }
 
 void SaveSection::selectedFilesChanged(FileListBoxModel* list_box) {
-  if (list_box == banks_model_)
+  if (list_box == banks_model_.get())
     rescanFolders();
 }
 
 void SaveSection::buttonClicked(Button* clicked_button) {
-  if (clicked_button == save_button_)
+  if (clicked_button == save_button_.get())
     save();
-  else if (clicked_button == cancel_button_)
+  else if (clicked_button == cancel_button_.get())
     setVisible(false);
-  else if (clicked_button == add_bank_button_)
+  else if (clicked_button == add_bank_button_.get())
     createNewBank();
-  else if (clicked_button == add_folder_button_)
+  else if (clicked_button == add_folder_button_.get())
     createNewFolder();
 }
 

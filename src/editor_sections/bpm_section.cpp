@@ -24,7 +24,7 @@
 #define SHADOW_WIDTH 3
 
 BpmSection::BpmSection(String name) : SynthSection(name) {
-  addSlider(bpm_ = new BpmSlider("beats_per_minute"));
+  addSlider((bpm_ = std::make_unique<BpmSlider>("beats_per_minute")).get());
   bpm_->setSliderStyle(Slider::LinearBarVertical);
   bpm_->setColour(Slider::textBoxTextColourId, Colours::white);
   bpm_->flipColoring(true);

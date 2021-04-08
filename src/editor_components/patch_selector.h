@@ -49,11 +49,11 @@ class PatchSelector : public SynthSection, public PatchBrowser::PatchSelectedLis
     String folder_text_;
     String patch_text_;
 
-    ScopedPointer<TextButton> prev_patch_;
-    ScopedPointer<TextButton> next_patch_;
-    ScopedPointer<TextButton> save_;
-    ScopedPointer<TextButton> export_;
-    ScopedPointer<TextButton> browse_;
+    std::unique_ptr<TextButton> prev_patch_;
+    std::unique_ptr<TextButton> next_patch_;
+    std::unique_ptr<TextButton> save_;
+    std::unique_ptr<TextButton> export_;
+    std::unique_ptr<TextButton> browse_;
     PatchBrowser* browser_;
     SaveSection* save_section_;
     bool modified_;

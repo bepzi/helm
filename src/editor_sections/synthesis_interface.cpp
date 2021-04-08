@@ -28,31 +28,31 @@
 
 SynthesisInterface::SynthesisInterface(
     mopo::control_map controls, MidiKeyboardState* keyboard_state) : SynthSection("synthesis") {
-  addSubSection(amplitude_envelope_section_ = new EnvelopeSection("AMPLITUDE ENVELOPE", "amp"));
-  addSubSection(delay_section_ = new DelaySection("DELAY"));
-  addSubSection(dynamic_section_ = new DynamicSection("DYNAMICS"));
-  addSubSection(extra_envelope_section_ = new EnvelopeSection("MOD ENVELOPE", "mod"));
-  addSubSection(extra_mod_section_ = new ExtraModSection("KEYBOARD MOD"));
-  addSubSection(feedback_section_ = new FeedbackSection("FEEDBACK"));
-  addSubSection(filter_envelope_section_ = new EnvelopeSection("FILTER ENVELOPE", "fil"));
-  addSubSection(filter_section_ = new FilterSection("FILTER"));
-  addSubSection(formant_section_ = new FormantSection("FORMANT"));
-  addSubSection(mono_lfo_1_section_ = new LfoSection("MONO LFO 1", "mono_lfo_1", true, true));
-  addSubSection(mono_lfo_2_section_ = new LfoSection("MONO LFO 2", "mono_lfo_2", true, true));
-  keyboard_ = new MidiKeyboard(*keyboard_state, MidiKeyboardComponent::horizontalKeyboard);
-  addAndMakeVisible(keyboard_);
+  addSubSection((amplitude_envelope_section_ = std::make_unique<EnvelopeSection>("AMPLITUDE ENVELOPE", "amp")).get());
+  addSubSection((delay_section_ = std::make_unique<DelaySection>("DELAY")).get());
+  addSubSection((dynamic_section_ = std::make_unique<DynamicSection>("DYNAMICS")).get());
+  addSubSection((extra_envelope_section_ = std::make_unique<EnvelopeSection>("MOD ENVELOPE", "mod")).get());
+  addSubSection((extra_mod_section_ = std::make_unique<ExtraModSection>("KEYBOARD MOD")).get());
+  addSubSection((feedback_section_ = std::make_unique<FeedbackSection>("FEEDBACK")).get());
+  addSubSection((filter_envelope_section_ = std::make_unique<EnvelopeSection>("FILTER ENVELOPE", "fil")).get());
+  addSubSection((filter_section_ = std::make_unique<FilterSection>("FILTER")).get());
+  addSubSection((formant_section_ = std::make_unique<FormantSection>("FORMANT")).get());
+  addSubSection((mono_lfo_1_section_ = std::make_unique<LfoSection>("MONO LFO 1", "mono_lfo_1", true, true)).get());
+  addSubSection((mono_lfo_2_section_ = std::make_unique<LfoSection>("MONO LFO 2", "mono_lfo_2", true, true)).get());
+
+  addAndMakeVisible((keyboard_ = std::make_unique<MidiKeyboard>(*keyboard_state, MidiKeyboardComponent::horizontalKeyboard)).get());
   keyboard_->setWantsKeyboardFocus(false);
   keyboard_->setMouseClickGrabsKeyboardFocus(false);
 
-  addSubSection(mixer_section_ = new MixerSection("MIXER"));
-  addSubSection(oscillator_section_ = new OscillatorSection("OSCILLATORS"));
-  addSubSection(poly_lfo_section_ = new LfoSection("POLY LFO", "poly_lfo", false));
-  addSubSection(reverb_section_ = new ReverbSection("REVERB"));
-  addSubSection(distortion_section_ = new DistortionSection("DISTORTION"));
-  addSubSection(step_sequencer_section_ = new StepSequencerSection("STEP SEQUENCER"));
-  addSubSection(stutter_section_ = new StutterSection("STUTTER"));
-  addSubSection(sub_section_ = new SubSection("SUB"));
-  addSubSection(voice_section_ = new VoiceSection("VOICE"));
+  addSubSection((mixer_section_ = std::make_unique<MixerSection>("MIXER")).get());
+  addSubSection((oscillator_section_ = std::make_unique<OscillatorSection>("OSCILLATORS")).get());
+  addSubSection((poly_lfo_section_ = std::make_unique<LfoSection>("POLY LFO", "poly_lfo", false)).get());
+  addSubSection((reverb_section_ = std::make_unique<ReverbSection>("REVERB")).get());
+  addSubSection((distortion_section_ = std::make_unique<DistortionSection>("DISTORTION")).get());
+  addSubSection((step_sequencer_section_ = std::make_unique<StepSequencerSection>("STEP SEQUENCER")).get());
+  addSubSection((stutter_section_ = std::make_unique<StutterSection>("STUTTER")).get());
+  addSubSection((sub_section_ = std::make_unique<SubSection>("SUB")).get());
+  addSubSection((voice_section_ = std::make_unique<VoiceSection>("VOICE")).get());
 
   keyboard_->setColour(MidiKeyboardComponent::whiteNoteColourId, Colour(0xff444444));
   keyboard_->setColour(MidiKeyboardComponent::blackNoteColourId, Colour(0xff222222));
@@ -191,7 +191,7 @@ void SynthesisInterface::resized() {
 
   int dynamic_width = size_ratio_ * DYNAMIC_WIDTH;
   int dynamics_y = getHeight() - padding_ - dynamics_height;
-  
+
   voice_section_->setBounds(column_1_x, dynamics_y,
                             dynamic_width, dynamics_height);
   dynamic_section_->setBounds(extra_envelope_section_->getRight() - dynamic_width, dynamics_y,

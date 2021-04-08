@@ -33,16 +33,16 @@ class StutterSection : public SynthSection {
     void resized() override;
 
   private:
-    ScopedPointer<SynthSlider> stutter_frequency_;
-    ScopedPointer<SynthSlider> stutter_tempo_;
-    ScopedPointer<TempoSelector> stutter_sync_;
+    std::unique_ptr<SynthSlider> stutter_frequency_;
+    std::unique_ptr<SynthSlider> stutter_tempo_;
+    std::unique_ptr<TempoSelector> stutter_sync_;
 
-    ScopedPointer<SynthSlider> resample_frequency_;
-    ScopedPointer<SynthSlider> resample_tempo_;
-    ScopedPointer<TempoSelector> resample_sync_;
+    std::unique_ptr<SynthSlider> resample_frequency_;
+    std::unique_ptr<SynthSlider> resample_tempo_;
+    std::unique_ptr<TempoSelector> resample_sync_;
 
-    ScopedPointer<SynthSlider> stutter_softness_;
-    ScopedPointer<SynthButton> on_;
+    std::unique_ptr<SynthSlider> stutter_softness_;
+    std::unique_ptr<SynthButton> on_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StutterSection)
 };

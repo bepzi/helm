@@ -49,8 +49,8 @@ class UpdateCheckSection : public Component, public Button::Listener {
     Rectangle<int> getUpdateCheckRect();
 
   private:
-    ScopedPointer<TextButton> download_button_;
-    ScopedPointer<TextButton> nope_button_;
+    std::unique_ptr<TextButton> download_button_;
+    std::unique_ptr<TextButton> nope_button_;
 
     String version_;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UpdateCheckSection)

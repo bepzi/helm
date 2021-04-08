@@ -37,16 +37,16 @@ class AboutSection : public Overlay, public Button::Listener {
   private:
     void setGuiSize(float multiplier);
 
-    ScopedPointer<HyperlinkButton> developer_link_;
-    ScopedPointer<HyperlinkButton> free_software_link_;
-    ScopedPointer<AudioDeviceSelectorComponent> device_selector_;
-    ScopedPointer<Button> check_for_updates_;
-    ScopedPointer<Button> animate_;
+    std::unique_ptr<HyperlinkButton> developer_link_;
+    std::unique_ptr<HyperlinkButton> free_software_link_;
+    std::unique_ptr<AudioDeviceSelectorComponent> device_selector_;
+    std::unique_ptr<Button> check_for_updates_;
+    std::unique_ptr<Button> animate_;
 
-    ScopedPointer<Button> size_button_small_;
-    ScopedPointer<Button> size_button_normal_;
-    ScopedPointer<Button> size_button_large_;
-    ScopedPointer<Button> size_button_extra_large_;
+    std::unique_ptr<Button> size_button_small_;
+    std::unique_ptr<Button> size_button_normal_;
+    std::unique_ptr<Button> size_button_large_;
+    std::unique_ptr<Button> size_button_extra_large_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AboutSection)
 };

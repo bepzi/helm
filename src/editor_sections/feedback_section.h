@@ -31,9 +31,9 @@ class FeedbackSection : public SynthSection {
     void resized() override;
 
   private:
-    ScopedPointer<SynthSlider> transpose_;
-    ScopedPointer<SynthSlider> tune_;
-    ScopedPointer<SynthSlider> amount_;
+    std::unique_ptr<SynthSlider> transpose_;
+    std::unique_ptr<SynthSlider> tune_;
+    std::unique_ptr<SynthSlider> amount_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FeedbackSection)
 };

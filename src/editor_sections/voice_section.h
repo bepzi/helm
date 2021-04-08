@@ -31,9 +31,9 @@ class VoiceSection : public SynthSection {
     void resized() override;
 
   private:
-    ScopedPointer<SynthSlider> polyphony_;
-    ScopedPointer<SynthSlider> pitch_bend_;
-    ScopedPointer<SynthSlider> velocity_track_;
+    std::unique_ptr<SynthSlider> polyphony_;
+    std::unique_ptr<SynthSlider> pitch_bend_;
+    std::unique_ptr<SynthSlider> velocity_track_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VoiceSection)
 };

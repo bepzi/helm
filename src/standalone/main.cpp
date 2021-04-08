@@ -127,7 +127,7 @@ class HelmApplication : public JUCEApplication {
       }
 
       void handleAsyncUpdate() override {
-        command_manager_ = new ApplicationCommandManager();
+        command_manager_ = std::make_unique<ApplicationCommandManager>();
         command_manager_->registerAllCommandsForTarget(JUCEApplication::getInstance());
         command_manager_->registerAllCommandsForTarget(this);
         addKeyListener(command_manager_->getKeyMappings());
@@ -145,7 +145,7 @@ class HelmApplication : public JUCEApplication {
     private:
       JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
       HelmEditor* editor_;
-      ScopedPointer<ApplicationCommandManager> command_manager_;
+      std::unique_ptr<ApplicationCommandManager> command_manager_;
       BorderBoundsConstrainer constrainer_;
     };
 
@@ -174,7 +174,7 @@ class HelmApplication : public JUCEApplication {
       }
       else {
         bool visible = !command.contains(" --headless ");
-        main_window_ = new MainWindow(getApplicationName(), visible);
+        main_window_ = std::make_unique<MainWindow>(getApplicationName(), visible);
 
         StringArray args = getCommandLineParameterArray();
         File file;
@@ -209,7 +209,7 @@ class HelmApplication : public JUCEApplication {
     }
 
   private:
-    ScopedPointer<MainWindow> main_window_;
+    std::unique_ptr<MainWindow> main_window_;
 };
 
 START_JUCE_APPLICATION(HelmApplication)

@@ -28,13 +28,13 @@
 #define BUTTON_HEIGHT 30
 
 DeleteSection::DeleteSection(String name) : Overlay(name) {
-  delete_button_ = new TextButton(TRANS("Delete"));
+  delete_button_ = std::make_unique<TextButton>(TRANS("Delete"));
   delete_button_->addListener(this);
-  addAndMakeVisible(delete_button_);
+  addAndMakeVisible(delete_button_.get());
 
-  cancel_button_ = new TextButton(TRANS("Cancel"));
+  cancel_button_ = std::make_unique<TextButton>(TRANS("Cancel"));
   cancel_button_->addListener(this);
-  addAndMakeVisible(cancel_button_);
+  addAndMakeVisible(cancel_button_.get());
 }
 
 void DeleteSection::paint(Graphics& g) {
@@ -90,13 +90,13 @@ void DeleteSection::mouseUp(const MouseEvent &e) {
 }
 
 void DeleteSection::buttonClicked(Button* clicked_button) {
-  if (clicked_button == delete_button_) {
+  if (clicked_button == delete_button_.get()) {
     file_.deleteRecursively();
     setVisible(false);
     for (int i = 0; i < listeners_.size(); ++i)
       listeners_[i]->fileDeleted(file_);
   }
-  else if (clicked_button == cancel_button_)
+  else if (clicked_button == cancel_button_.get())
     setVisible(false);
 }
 

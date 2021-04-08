@@ -18,8 +18,6 @@
 
 #include "colors.h"
 #include "fonts.h"
-#include "synth_button.h"
-#include "text_slider.h"
 #include "text_look_and_feel.h"
 
 #define TEXT_WIDTH 40
@@ -27,18 +25,17 @@
 #define TEXT_HEIGHT 16
 
 DynamicSection::DynamicSection(String name) : SynthSection(name) {
-  addSlider(portamento_ = new SynthSlider("portamento"));
+  addSlider((portamento_ = std::make_unique<SynthSlider>("portamento")).get());
   portamento_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   portamento_->setPopupPlacement(BubbleComponent::above, 0);
 
-  TextSlider* port_type = new TextSlider("portamento_type");
-  addSlider(portamento_type_ = port_type);
+  addSlider((portamento_type_ = std::make_unique<TextSlider>("portamento_type")).get());
   portamento_type_->setSliderStyle(Slider::LinearBar);
   portamento_type_->setStringLookup(mopo::strings::off_auto_on);
   portamento_type_->setPopupPlacement(BubbleComponent::above, 0);
-  port_type->setShortStringLookup(mopo::strings::off_auto_on_slider);
+  portamento_type_->setShortStringLookup(mopo::strings::off_auto_on_slider);
 
-  addButton(legato_ = new SynthButton("legato"));
+  addButton((legato_ = std::make_unique<SynthButton>("legato")).get());
   legato_->setLookAndFeel(TextLookAndFeel::instance());
   legato_->setButtonText("");
 }
@@ -58,11 +55,11 @@ void DynamicSection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(size_ratio_ * 10.0f));
-  
-  drawTextForComponent(g, TRANS("PORTA"), portamento_);
-  drawTextForComponent(g, TRANS("PORTA TYPE"), portamento_type_,
+
+  drawTextForComponent(g, TRANS("PORTA"), portamento_.get());
+  drawTextForComponent(g, TRANS("PORTA TYPE"), portamento_type_.get(),
                        size_ratio_ * 4.0f + (knob_width - text_height) / 3.0f);
-  drawTextForComponent(g, TRANS("LEGATO"), legato_,
+  drawTextForComponent(g, TRANS("LEGATO"), legato_.get(),
                        size_ratio_ * 4.0f + (knob_width - text_height) / 3.0f);
 }
 

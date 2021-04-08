@@ -39,10 +39,10 @@ ModulationManager::ModulationManager(
 
   current_modulator_ = "";
 
-  polyphonic_destinations_ = new Component();
+  polyphonic_destinations_ = std::make_unique<Component>();
   polyphonic_destinations_->setInterceptsMouseClicks(false, true);
 
-  monophonic_destinations_ = new Component();
+  monophonic_destinations_ = std::make_unique<Component>();
   monophonic_destinations_->setInterceptsMouseClicks(false, true);
 
   for (auto& mod_button : modulation_buttons_) {
@@ -91,8 +91,8 @@ ModulationManager::ModulationManager(
     owned_sliders_.push_back(mod_slider);
   }
 
-  addAndMakeVisible(polyphonic_destinations_);
-  addAndMakeVisible(monophonic_destinations_);
+  addAndMakeVisible(polyphonic_destinations_.get());
+  addAndMakeVisible(monophonic_destinations_.get());
 
   forgetModulator();
 }
@@ -189,7 +189,7 @@ void ModulationManager::modulationsChanged(const std::string& destination) {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   if (parent == nullptr)
     return;
-  
+
   int num_modulations = parent->getSynth()->getNumModulations(destination);
   meter_lookup_[destination]->setModulated(num_modulations);
 }

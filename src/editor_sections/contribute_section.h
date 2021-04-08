@@ -62,17 +62,17 @@ class ContributeSection : public Overlay, public Button::Listener, CustomAmountE
   private:
     URL getUrl();
 
-    ScopedPointer<Button> give_100_button_;
-    ScopedPointer<Button> give_50_button_;
-    ScopedPointer<Button> give_25_button_;
-    ScopedPointer<Button> give_10_button_;
-    ScopedPointer<Button> give_5_button_;
+    std::unique_ptr<Button> give_100_button_;
+    std::unique_ptr<Button> give_50_button_;
+    std::unique_ptr<Button> give_25_button_;
+    std::unique_ptr<Button> give_10_button_;
+    std::unique_ptr<Button> give_5_button_;
     std::set<Button*> give_buttons_;
-    ScopedPointer<CustomAmountEditor> custom_amount_;
+    std::unique_ptr<CustomAmountEditor> custom_amount_;
 
-    ScopedPointer<Button> remind_button_;
-    ScopedPointer<Button> never_again_button_;
-    ScopedPointer<Button> pay_button_;
+    std::unique_ptr<Button> remind_button_;
+    std::unique_ptr<Button> never_again_button_;
+    std::unique_ptr<Button> pay_button_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ContributeSection)
 };

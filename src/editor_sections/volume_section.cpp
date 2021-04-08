@@ -18,9 +18,9 @@
 #include "synth_slider.h"
 
 VolumeSection::VolumeSection(String name) : SynthSection(name) {
-  addSlider(volume_ = new SynthSlider("volume"));
-  addOpenGLComponent(peak_meter_left_ = new OpenGLPeakMeter(true));
-  addOpenGLComponent(peak_meter_right_ = new OpenGLPeakMeter(false));
+  addSlider((volume_ = std::make_unique<SynthSlider>("volume")).get());
+  addOpenGLComponent((peak_meter_left_ = std::make_unique<OpenGLPeakMeter>(true)).get());
+  addOpenGLComponent((peak_meter_right_ = std::make_unique<OpenGLPeakMeter>(false)).get());
   volume_->setSliderStyle(Slider::LinearBar);
   volume_->setPopupPlacement(BubbleComponent::below, 0);
 }

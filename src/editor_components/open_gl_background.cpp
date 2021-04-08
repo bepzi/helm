@@ -57,15 +57,15 @@ void OpenGLBackground::init(OpenGLContext& open_gl_context) {
   const char* vertex_shader = Shaders::getShader(Shaders::kBackgroundImageVertex);
   const char* fragment_shader = Shaders::getShader(Shaders::kBackgroundImageFragment);
 
-  image_shader_ = new OpenGLShaderProgram(open_gl_context);
+  image_shader_ = std::make_unique<OpenGLShaderProgram>(open_gl_context);
 
   if (image_shader_->addVertexShader(OpenGLHelpers::translateVertexShaderToV3(vertex_shader)) &&
       image_shader_->addFragmentShader(OpenGLHelpers::translateFragmentShaderToV3(fragment_shader)) &&
       image_shader_->link()) {
     image_shader_->use();
-    position_ = new OpenGLShaderProgram::Attribute(*image_shader_, "position");
-    texture_coordinates_ = new OpenGLShaderProgram::Attribute(*image_shader_, "tex_coord_in");
-    texture_uniform_ = new OpenGLShaderProgram::Uniform(*image_shader_, "image");
+    position_ = std::make_unique<OpenGLShaderProgram::Attribute>(*image_shader_, "position");
+    texture_coordinates_ = std::make_unique<OpenGLShaderProgram::Attribute>(*image_shader_, "tex_coord_in");
+    texture_uniform_ = std::make_unique<OpenGLShaderProgram::Uniform>(*image_shader_, "image");
   }
 }
 

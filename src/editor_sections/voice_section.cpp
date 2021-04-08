@@ -26,16 +26,16 @@
 VoiceSection::VoiceSection(String name) : SynthSection(name) {
   static const int KNOB_SENSITIVITY = 500;
 
-  addSlider(polyphony_ = new SynthSlider("polyphony"));
+  addSlider((polyphony_ = std::make_unique<SynthSlider>("polyphony")).get());
   polyphony_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   polyphony_->setMouseDragSensitivity(KNOB_SENSITIVITY);
   polyphony_->setPopupPlacement(BubbleComponent::above, 0);
 
-  addSlider(velocity_track_ = new SynthSlider("velocity_track"));
+  addSlider((velocity_track_ = std::make_unique<SynthSlider>("velocity_track")).get());
   velocity_track_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   velocity_track_->setPopupPlacement(BubbleComponent::above, 0);
 
-  addSlider(pitch_bend_ = new SynthSlider("pitch_bend_range"));
+  addSlider((pitch_bend_ = std::make_unique<SynthSlider>("pitch_bend_range")).get());
   pitch_bend_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   pitch_bend_->setMouseDragSensitivity(KNOB_SENSITIVITY);
   pitch_bend_->setPopupPlacement(BubbleComponent::above, 0);
@@ -53,9 +53,9 @@ void VoiceSection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(size_ratio_ * 10.0f));
-  drawTextForComponent(g, TRANS("VOICES"), polyphony_);
-  drawTextForComponent(g, TRANS("PITCH BEND"), pitch_bend_);
-  drawTextForComponent(g, TRANS("VEL TRACK"), velocity_track_);
+  drawTextForComponent(g, TRANS("VOICES"), polyphony_.get());
+  drawTextForComponent(g, TRANS("PITCH BEND"), pitch_bend_.get());
+  drawTextForComponent(g, TRANS("VEL TRACK"), velocity_track_.get());
 }
 
 void VoiceSection::resized() {

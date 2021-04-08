@@ -32,12 +32,12 @@ class EnvelopeSection : public SynthSection {
     void reset() override;
 
   private:
-    ScopedPointer<OpenGLEnvelope> envelope_;
-    ScopedPointer<SynthSlider> attack_;
-    ScopedPointer<SynthSlider> decay_;
-    ScopedPointer<SynthSlider> sustain_;
-    ScopedPointer<SynthSlider> release_;
-    ScopedPointer<ModulationButton> modulation_button_;
+    std::unique_ptr<OpenGLEnvelope> envelope_;
+    std::unique_ptr<SynthSlider> attack_;
+    std::unique_ptr<SynthSlider> decay_;
+    std::unique_ptr<SynthSlider> sustain_;
+    std::unique_ptr<SynthSlider> release_;
+    std::unique_ptr<ModulationButton> modulation_button_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EnvelopeSection)
 };

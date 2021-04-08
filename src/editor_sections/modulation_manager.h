@@ -63,8 +63,8 @@ class ModulationManager : public SynthSection, public Timer,
     void makeModulationsVisible(std::string destination, bool visible);
     void setSliderValues();
 
-    ScopedPointer<Component> polyphonic_destinations_;
-    ScopedPointer<Component> monophonic_destinations_;
+    std::unique_ptr<Component> polyphonic_destinations_;
+    std::unique_ptr<Component> monophonic_destinations_;
 
     std::string current_modulator_;
     double last_value_;

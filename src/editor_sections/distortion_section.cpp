@@ -25,20 +25,20 @@
 #define TEXT_HEIGHT 16
 
 DistortionSection::DistortionSection(String name) : SynthSection(name) {
-  addSlider(type_ = new TextSelector("distortion_type"));
+  addSlider((type_ = std::make_unique<TextSelector>("distortion_type")).get());
   type_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
   type_->setStringLookup(mopo::strings::distortion_types_short);
   type_->setLookAndFeel(TextLookAndFeel::instance());
   type_->setLongStringLookup(mopo::strings::distortion_types_long);
 
-  addSlider(drive_ = new SynthSlider("distortion_drive"));
+  addSlider((drive_ = std::make_unique<SynthSlider>("distortion_drive")).get());
   drive_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  addSlider(mix_ = new SynthSlider("distortion_mix"));
+  addSlider((mix_ = std::make_unique<SynthSlider>("distortion_mix")).get());
   mix_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  addButton(on_ = new SynthButton("distortion_on"));
-  setActivator(on_);
+  addButton((on_ = std::make_unique<SynthButton>("distortion_on")).get());
+  setActivator(on_.get());
 }
 
 DistortionSection::~DistortionSection() {
@@ -60,8 +60,8 @@ void DistortionSection::paintBackground(Graphics& g) {
              drive_->getBounds().getY() + knob_width + size_ratio_ * 4,
              type_->getBounds().getWidth() + size_ratio_ * 10.0f,
              size_ratio_ * 10.0f, Justification::centred, false);
-  drawTextForComponent(g, TRANS("DRIVE"), drive_);
-  drawTextForComponent(g, TRANS("MIX"), mix_);
+  drawTextForComponent(g, TRANS("DRIVE"), drive_.get());
+  drawTextForComponent(g, TRANS("MIX"), mix_.get());
 }
 
 void DistortionSection::resized() {

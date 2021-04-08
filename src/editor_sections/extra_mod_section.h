@@ -32,12 +32,12 @@ class ExtraModSection : public SynthSection {
     void drawTextToRightOfComponent(Graphics& g, Component* component, String text);
 
   private:
-    ScopedPointer<ModulationButton> aftertouch_mod_;
-    ScopedPointer<ModulationButton> note_mod_;
-    ScopedPointer<ModulationButton> velocity_mod_;
-    ScopedPointer<ModulationButton> mod_wheel_mod_;
-    ScopedPointer<ModulationButton> pitch_wheel_mod_;
-    ScopedPointer<ModulationButton> random_mod_;
+    std::unique_ptr<ModulationButton> aftertouch_mod_;
+    std::unique_ptr<ModulationButton> note_mod_;
+    std::unique_ptr<ModulationButton> velocity_mod_;
+    std::unique_ptr<ModulationButton> mod_wheel_mod_;
+    std::unique_ptr<ModulationButton> pitch_wheel_mod_;
+    std::unique_ptr<ModulationButton> random_mod_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ExtraModSection)
 };

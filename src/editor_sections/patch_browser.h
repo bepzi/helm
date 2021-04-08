@@ -81,30 +81,30 @@ class PatchBrowser : public Overlay,
     float getPatchesWidth();
     float getPatchInfoWidth();
 
-    ScopedPointer<ListBox> banks_view_;
-    ScopedPointer<FileListBoxModel> banks_model_;
+    std::unique_ptr<ListBox> banks_view_;
+    std::unique_ptr<FileListBoxModel> banks_model_;
 
-    ScopedPointer<ListBox> folders_view_;
-    ScopedPointer<FileListBoxModel> folders_model_;
+    std::unique_ptr<ListBox> folders_view_;
+    std::unique_ptr<FileListBoxModel> folders_model_;
 
-    ScopedPointer<ListBox> patches_view_;
-    ScopedPointer<FileListBoxModel> patches_model_;
+    std::unique_ptr<ListBox> patches_view_;
+    std::unique_ptr<FileListBoxModel> patches_model_;
 
-    ScopedPointer<TextEditor> search_box_;
+    std::unique_ptr<TextEditor> search_box_;
 
     PatchSelectedListener* listener_;
-    ScopedPointer<HyperlinkButton> cc_license_link_;
-    ScopedPointer<HyperlinkButton> gpl_license_link_;
+    std::unique_ptr<HyperlinkButton> cc_license_link_;
+    std::unique_ptr<HyperlinkButton> gpl_license_link_;
 
     SaveSection* save_section_;
     DeleteSection* delete_section_;
-    ScopedPointer<TextButton> save_as_button_;
-    ScopedPointer<TextButton> delete_patch_button_;
-    ScopedPointer<TextButton> import_bank_button_;
-    ScopedPointer<TextButton> export_bank_button_;
+    std::unique_ptr<TextButton> save_as_button_;
+    std::unique_ptr<TextButton> delete_patch_button_;
+    std::unique_ptr<TextButton> import_bank_button_;
+    std::unique_ptr<TextButton> export_bank_button_;
 
-    ScopedPointer<TextButton> hide_button_;
-    ScopedPointer<TextButton> done_button_;
+    std::unique_ptr<TextButton> hide_button_;
+    std::unique_ptr<TextButton> done_button_;
 
     File external_patch_;
     String author_;

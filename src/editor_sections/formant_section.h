@@ -33,10 +33,10 @@ class FormantSection : public SynthSection {
     void setActive(bool active = true) override;
 
   private:
-    ScopedPointer<SynthButton> on_;
-    ScopedPointer<SynthSlider> x_;
-    ScopedPointer<SynthSlider> y_;
-    ScopedPointer<XYPad> xy_pad_;
+    std::unique_ptr<SynthButton> on_;
+    std::unique_ptr<SynthSlider> x_;
+    std::unique_ptr<SynthSlider> y_;
+    std::unique_ptr<XYPad> xy_pad_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FormantSection)
 };

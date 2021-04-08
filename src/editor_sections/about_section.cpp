@@ -36,47 +36,47 @@
 #define MULT_EXTRA_LARGE 2.0f
 
 AboutSection::AboutSection(String name) : Overlay(name) {
-  developer_link_ = new HyperlinkButton("Matt Tytel", URL("http://tytel.org"));
+  developer_link_ = std::make_unique<HyperlinkButton>("Matt Tytel", URL("http://tytel.org"));
   developer_link_->setFont(Fonts::instance()->proportional_light().withPointHeight(16.0f),
                            false, Justification::right);
   developer_link_->setColour(HyperlinkButton::textColourId, Colour(0xffffd740));
-  addAndMakeVisible(developer_link_);
+  addAndMakeVisible(developer_link_.get());
 
-  free_software_link_ = new HyperlinkButton(TRANS("Read more about free software"),
+  free_software_link_ = std::make_unique<HyperlinkButton>(TRANS("Read more about free software"),
                                             URL("http://www.gnu.org/philosophy/free-sw.html"));
   free_software_link_->setFont(Fonts::instance()->proportional_light().withPointHeight(12.0f),
                                false, Justification::right);
   free_software_link_->setColour(HyperlinkButton::textColourId, Colour(0xffffd740));
-  addAndMakeVisible(free_software_link_);
+  addAndMakeVisible(free_software_link_.get());
 
-  check_for_updates_ = new ToggleButton();
+  check_for_updates_ = std::make_unique<ToggleButton>();
   check_for_updates_->setToggleState(LoadSave::shouldCheckForUpdates(),
                                      NotificationType::dontSendNotification);
   check_for_updates_->setLookAndFeel(TextLookAndFeel::instance());
   check_for_updates_->addListener(this);
-  addAndMakeVisible(check_for_updates_);
+  addAndMakeVisible(check_for_updates_.get());
 
-  animate_ = new ToggleButton();
+  animate_ = std::make_unique<ToggleButton>();
   animate_->setToggleState(LoadSave::shouldAnimateWidgets(),
                            NotificationType::dontSendNotification);
   animate_->setLookAndFeel(TextLookAndFeel::instance());
   animate_->addListener(this);
-  addAndMakeVisible(animate_);
+  addAndMakeVisible(animate_.get());
 
-  size_button_small_ = new TextButton(String(100 * MULT_SMALL) + "%");
-  addAndMakeVisible(size_button_small_);
+  size_button_small_ = std::make_unique<TextButton>(String(100 * MULT_SMALL) + "%");
+  addAndMakeVisible(size_button_small_.get());
   size_button_small_->addListener(this);
 
-  size_button_normal_ = new TextButton(String("100") + "%");
-  addAndMakeVisible(size_button_normal_);
+  size_button_normal_ = std::make_unique<TextButton>(String("100") + "%");
+  addAndMakeVisible(size_button_normal_.get());
   size_button_normal_->addListener(this);
 
-  size_button_large_ = new TextButton(String(100 * MULT_LARGE) + "%");
-  addAndMakeVisible(size_button_large_);
+  size_button_large_ = std::make_unique<TextButton>(String(100 * MULT_LARGE) + "%");
+  addAndMakeVisible(size_button_large_.get());
   size_button_large_->addListener(this);
 
-  size_button_extra_large_ = new TextButton(String(100 * MULT_EXTRA_LARGE) + "%");
-  addAndMakeVisible(size_button_extra_large_);
+  size_button_extra_large_ = std::make_unique<TextButton>(String(100 * MULT_EXTRA_LARGE) + "%");
+  addAndMakeVisible(size_button_extra_large_.get());
   size_button_extra_large_->addListener(this);
 
   size_button_extra_large_->setLookAndFeel(DefaultLookAndFeel::instance());
@@ -199,11 +199,11 @@ void AboutSection::setVisible(bool should_be_visible) {
     SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
     AudioDeviceManager* device_manager = parent->getAudioDeviceManager();
     if (device_manager) {
-      device_selector_ = new AudioDeviceSelectorComponent(*device_manager, 0, 0,
+        device_selector_ = std::make_unique<AudioDeviceSelectorComponent>(*device_manager, 0, 0,
                                                           mopo::NUM_CHANNELS, mopo::NUM_CHANNELS,
                                                           true, false, false, false);
       device_selector_->setLookAndFeel(TextLookAndFeel::instance());
-      addAndMakeVisible(device_selector_);
+      addAndMakeVisible(device_selector_.get());
       Rectangle<int> info_rect = getInfoRect();
       int y = info_rect.getY() + LOGO_WIDTH + 2 * PADDING_Y;
       device_selector_->setBounds(info_rect.getX(), y,
@@ -216,9 +216,9 @@ void AboutSection::setVisible(bool should_be_visible) {
 }
 
 void AboutSection::buttonClicked(Button* clicked_button) {
-  if (clicked_button == check_for_updates_)
+  if (clicked_button == check_for_updates_.get())
     LoadSave::saveUpdateCheckConfig(check_for_updates_->getToggleState());
-  else if (clicked_button == animate_) {
+  else if (clicked_button == animate_.get()) {
     LoadSave::saveAnimateWidgets(animate_->getToggleState());
 
     SynthSection* parent = findParentComponentOfClass<SynthSection>();
@@ -227,13 +227,13 @@ void AboutSection::buttonClicked(Button* clicked_button) {
 
     parent->animate(animate_->getToggleState());
   }
-  else if (clicked_button == size_button_small_)
+  else if (clicked_button == size_button_small_.get())
     setGuiSize(MULT_SMALL);
-  else if (clicked_button == size_button_normal_)
+  else if (clicked_button == size_button_normal_.get())
     setGuiSize(1.0);
-  else if (clicked_button == size_button_large_)
+  else if (clicked_button == size_button_large_.get())
     setGuiSize(MULT_LARGE);
-  else if (clicked_button == size_button_extra_large_)
+  else if (clicked_button == size_button_extra_large_.get())
     setGuiSize(MULT_EXTRA_LARGE);
 }
 
@@ -254,4 +254,3 @@ void AboutSection::setGuiSize(float multiplier) {
                        percent * mopo::DEFAULT_WINDOW_HEIGHT);
   }
 }
-

@@ -48,8 +48,8 @@ class DeleteSection : public Overlay, public Button::Listener {
   private:
     File file_;
 
-    ScopedPointer<TextButton> delete_button_;
-    ScopedPointer<TextButton> cancel_button_;
+    std::unique_ptr<TextButton> delete_button_;
+    std::unique_ptr<TextButton> cancel_button_;
 
     Array<Listener*> listeners_;
 

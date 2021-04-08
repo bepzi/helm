@@ -22,17 +22,17 @@
 
 ReverbSection::ReverbSection(String name) : SynthSection(name) {
 
-  addSlider(feedback_ = new SynthSlider("reverb_feedback"));
+  addSlider((feedback_ = std::make_unique<SynthSlider>("reverb_feedback")).get());
   feedback_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  addSlider(damping_ = new SynthSlider("reverb_damping"));
+  addSlider((damping_ = std::make_unique<SynthSlider>("reverb_damping")).get());
   damping_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  addSlider(dry_wet_ = new SynthSlider("reverb_dry_wet"));
+  addSlider((dry_wet_ = std::make_unique<SynthSlider>("reverb_dry_wet")).get());
   dry_wet_->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 
-  addButton(on_ = new SynthButton("reverb_on"));
-  setActivator(on_);
+  addButton((on_ = std::make_unique<SynthButton>("reverb_on")).get());
+  setActivator(on_.get());
 }
 
 ReverbSection::~ReverbSection() {
@@ -47,10 +47,10 @@ void ReverbSection::paintBackground(Graphics& g) {
 
   g.setColour(Colors::control_label_text);
   g.setFont(Fonts::instance()->proportional_regular().withPointHeight(size_ratio_ * 10.0f));
-  
-  drawTextForComponent(g, TRANS("FEEDB"), feedback_);
-  drawTextForComponent(g, TRANS("DAMP"), damping_);
-  drawTextForComponent(g, TRANS("MIX"), dry_wet_);
+
+  drawTextForComponent(g, TRANS("FEEDB"), feedback_.get());
+  drawTextForComponent(g, TRANS("DAMP"), damping_.get());
+  drawTextForComponent(g, TRANS("MIX"), dry_wet_.get());
 }
 
 void ReverbSection::resized() {

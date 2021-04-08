@@ -26,8 +26,8 @@
 SynthBase::SynthBase() {
   controls_ = engine_.getControls();
 
-  keyboard_state_ = new MidiKeyboardState();
-  midi_manager_ = new MidiManager(this, keyboard_state_, &save_info_, this);
+  keyboard_state_ = std::make_unique<MidiKeyboardState>();
+  midi_manager_ = std::make_unique<MidiManager>(this, keyboard_state_.get(), &save_info_, this);
 
   last_played_note_ = 0.0;
   last_num_pressed_ = 0;
@@ -37,7 +37,7 @@ SynthBase::SynthBase() {
   memory_input_offset_ = 0;
   memory_index_ = 0;
 
-  Startup::doStartupChecks(midi_manager_);
+  Startup::doStartupChecks(midi_manager_.get());
 }
 
 void SynthBase::valueChanged(const std::string& name, mopo::mopo_float value) {
@@ -291,7 +291,7 @@ void SynthBase::updateMemoryOutput(int samples, const mopo::mopo_float* left,
 
   if (last_played && (last_played_note_ != last_played || num_pressed > last_num_pressed_)) {
     last_played_note_ = last_played;
-    
+
     mopo::mopo_float frequency = mopo::utils::midiNoteToFrequency(last_played_note_);
     mopo::mopo_float period = engine_.getSampleRate() / frequency;
     int window_length = output_inc * mopo::MEMORY_RESOLUTION;

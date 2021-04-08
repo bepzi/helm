@@ -85,7 +85,7 @@ class OpenGLEnvelope : public OpenGLComponent, public SynthSlider::SliderListene
     Image position_image_;
     Image background_image_;
     OpenGLTexture position_texture_;
-    ScopedPointer<OpenGLShaderProgram::Uniform> texture_;
+    std::unique_ptr<OpenGLShaderProgram::Uniform> texture_;
 
     float* position_vertices_;
     int* position_triangles_;

@@ -31,7 +31,7 @@ class NoiseSection : public SynthSection {
     void resized() override;
 
   private:
-    ScopedPointer<SynthSlider> volume_;
+    std::unique_ptr<SynthSlider> volume_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoiseSection)
 };

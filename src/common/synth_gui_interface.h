@@ -39,7 +39,7 @@ class SynthGuiInterface {
 
   protected:
     SynthBase* synth_;
-    ScopedPointer<FullInterface> gui_;
+    std::unique_ptr<FullInterface> gui_;
 };
 
 #endif // SYNTH_GUI_INTERFACE_H
