@@ -55,10 +55,10 @@ juce_add_plugin(HelmPlugin
   PRODUCT_NAME "helm"
   COMPANY_NAME "Matt Tytel"
   PLUGIN_MANUFACTURER_CODE "Tyte"
-  FORMATS VST3 AU # LV2
+  FORMATS VST3 AU LV2
 
-  # LV2_URI https://github.com/bepzi/helm
-  )
+  LV2_URI "http://tytel.org/helm"
+  LV2_WANTS_LATENCY FALSE)
 
 juce_generate_juce_header(HelmPlugin)
 
