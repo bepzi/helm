@@ -25,3 +25,4 @@ juce_add_module(juce_build_tools ALIAS_NAMESPACE juce)
 
 add_subdirectory(juceaide)
 
+add_subdirectory(lv2-ttl-generator)
