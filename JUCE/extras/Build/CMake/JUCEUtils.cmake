@@ -168,7 +168,7 @@ function(_juce_set_default_properties)
     if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         set_property(GLOBAL PROPERTY JUCE_VST_COPY_DIR  "$ENV{HOME}/Library/Audio/Plug-Ins/VST")
         set_property(GLOBAL PROPERTY JUCE_VST3_COPY_DIR "$ENV{HOME}/Library/Audio/Plug-Ins/VST3")
-        # TODO: LV2 copy dir on macOS
+        set_property(GLOBAL PROPERTY JUCE_LV2_COPY_DIR  "$ENV{HOME}/Library/Audio/Plug-Ins/LV2")
         set_property(GLOBAL PROPERTY JUCE_AU_COPY_DIR   "$ENV{HOME}/Library/Audio/Plug-Ins/Components")
         set_property(GLOBAL PROPERTY JUCE_AAX_COPY_DIR  "/Library/Application Support/Avid/Audio/Plug-Ins")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -181,7 +181,7 @@ function(_juce_set_default_properties)
         endif()
 
         set_property(GLOBAL PROPERTY JUCE_VST3_COPY_DIR "${prefix}/VST3")
-        # TODO: LV2 copy dir on Windows
+        set_property(GLOBAL PROPERTY JUCE_VST3_COPY_DIR "${prefix}/LV2")
         set_property(GLOBAL PROPERTY JUCE_AAX_COPY_DIR  "${prefix}/Avid/Audio/Plug-Ins")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         set_property(GLOBAL PROPERTY JUCE_VST_COPY_DIR  "$ENV{HOME}/.vst")
