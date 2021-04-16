@@ -1348,10 +1348,16 @@ function(_juce_set_plugin_target_properties shared_code_target kind)
         set_target_properties(${target_name} PROPERTIES
             PREFIX "")
 
+        set_source_files_properties(${JUCE_SOURCE_DIR}/extras/Build/lv2_ttl_generator/lv2_ttl_generator.c PROPERTIES
+            LANGUAGE CXX)
+        add_executable(lv2_ttl_generator ${JUCE_SOURCE_DIR}/extras/Build/lv2_ttl_generator/lv2_ttl_generator.c)
+        target_link_libraries(lv2_ttl_generator ${CMAKE_DL_LIBS})
+
         add_custom_command(TARGET ${target_name} POST_BUILD
-          COMMAND lv2-ttl-generator "$<TARGET_FILE:${target_name}>"
-          COMMENT "Generating LV2 Turtle manifest files for ${target_name}"
-          WORKING_DIRECTORY "${products_folder}")
+            COMMAND lv2_ttl_generator "$<TARGET_FILE:${target_name}>"
+            COMMENT "Generating LV2 Turtle manifest files for ${target_name}"
+            WORKING_DIRECTORY "${products_folder}"
+            VERBATIM)
 
         _juce_copy_after_build(${shared_code_target} ${target_name} "${products_folder}" JUCE_LV2_COPY_DIR)
     elseif(kind STREQUAL "VST")
