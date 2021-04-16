@@ -1346,25 +1346,14 @@ function(_juce_set_plugin_target_properties shared_code_target kind)
         _juce_copy_after_build(${shared_code_target} ${target_name} "${output_path}" JUCE_VST3_COPY_DIR)
     elseif(kind STREQUAL "LV2")
         set_target_properties(${target_name} PROPERTIES
-            BUNDLE_EXTENSION lv2
-            PREFIX ""
-            SUFFIX .lv2
-            BUNDLE TRUE
-            XCODE_ATTRIBUTE_WRAPPER_EXTENSION lv2
-            XCODE_ATTRIBUTE_LIBRARY_STYLE Bundle
-            XCODE_ATTRIBUTE_GENERATE_PKGINFO_FILE YES)
+            PREFIX "")
 
-        _juce_create_windows_package(${shared_code_target} ${target_name} lv2 "" x86-win x86_64-win)
+        add_custom_command(TARGET ${target_name} POST_BUILD
+          COMMAND lv2-ttl-generator "$<TARGET_FILE:${target_name}>"
+          COMMENT "Generating LV2 Turtle manifest files for ${target_name}"
+          WORKING_DIRECTORY "${products_folder}")
 
-        set(output_path "${products_folder}/${product_name}.lv2")
-
-        if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-            set_target_properties(${target_name} PROPERTIES
-                SUFFIX .so
-                LIBRARY_OUTPUT_DIRECTORY "${output_path}/Contents/${JUCE_LINUX_TARGET_ARCHITECTURE}-linux")
-        endif()
-
-        _juce_copy_after_build(${shared_code_target} ${target_name} "${output_path}" JUCE_LV2_COPY_DIR)
+        _juce_copy_after_build(${shared_code_target} ${target_name} "${products_folder}" JUCE_LV2_COPY_DIR)
     elseif(kind STREQUAL "VST")
         set_target_properties(${target_name} PROPERTIES
             BUNDLE_EXTENSION vst
@@ -1810,13 +1799,6 @@ function(_juce_set_fallback_properties target)
     else()
         _juce_set_property_if_not_set(${target} VST3_CATEGORIES Fx)
     endif()
-
-    # LV2_CATEGORIES
-    # if(is_synth)
-    #   _juce_set_property_if_not_set(${target} VST3_CATEGORIES Instrument Synth)
-    # else()
-    #   _juce_set_property_if_not_set(${target} VST3_CATEGORIES Fx)
-    # endif()
 
     # VST2_CATEGORY
     if(is_synth)
