@@ -1,57 +1,17 @@
-## Helm
+<h2 align="center">Helm</h2>
 
-Helm is a free, cross-platform, polyphonic synthesizer that runs on GNU/Linux, Mac, and Windows as a standalone program and as a LV2/VST/AU/AAX plugin.
+Helm is a free, cross-platform, polyphonic synthesizer that runs on
+GNU/Linux, Mac, and Windows as a standalone program and as a
+LV2/VST3/AU plugin.
+
+This is a **custom fork** of Helm aimed at keeping its build systems
+and dependencies up to date. New features will not be developed in
+this repo.
 
 ![alt tag](http://tytel.org/static/images/helm_screenshot.png)
 
-This is a **custom fork** of Helm; the name may change if the project continues.
+### Features
 
-### Building:
-If you want to build AAX plugins You'll need its SDK located in ~/srcs
-For AU on the Mac you'll want to put the CoreAudio SDK in /Applications/Xcode.app/Contents/Developer/Extras/CoreAudio
-Nothing extra is needed for building VST/LV2 plugins
-
-#### Linux
-To build and install the standalone, lv2 and vst plugin:
-```bash
-make
-sudo make install
-```
-
-Other make commands:
-```bash
-# Build just the Linux standalone executable:
-make standalone
-
-# Build just the Linux LV2 plugin:
-make lv2
-
-# Build just the Linux VST plugin
-make vst
-
-# Install just the Linux standalone executable:
-sudo make install_standalone
-
-# Install just the Linux LV2 plugin:
-sudo make install_lv2
-
-# Install just the Linux VST plugin
-sudo make install_vst
-```
-
-The standalone executable is built to standalone/builds/linux/build and installed to /usr/bin
-The LV2 plugin is built to builds/linux/LV2 and installed to /usr/lib/lv2
-The VST plugin is built to builds/linux/VST and installed to /usr/lib/lxvst
-
-#### OSX
-Open /standalone/builds/osx/Helm.xcodeproj for standalone version
-Open /builds/osx/Helm.xcodeproj for plugin versions
-
-#### Windows
-Open /standalone/builds/vs15/Helm.sln for standalone version
-Open /builds/vs15/Helm.sln for plugin versions
-
-### Features:
  - 32 voice polyphony
  - Interactive visual interface
  - Powerful modulation system with live visual feedback
@@ -66,3 +26,26 @@ Open /builds/vs15/Helm.sln for plugin versions
  - Lots of modulation sources including polyphonic aftertouch
  - Simple arpeggiator
  - Effects: Formant filter, stutter, delay, distortion, reverb
+
+### Building
+
+To build everything:
+
+```bash
+cmake -S . -B build
+cmake --build build -j$(nproc)
+```
+
+To build one type of plugin:
+
+```bash
+cmake --build build --target HelmPlugin_<PLUGIN_FORMAT>
+```
+
+Where `<PLUGIN_FORMAT>` is one of: `LV2`, `AU`, or `VST3`.
+
+To build the standalone:
+
+```bash
+cmake --build build --target HelmStandalone
+```
