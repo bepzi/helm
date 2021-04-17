@@ -23,7 +23,8 @@
 #define MAX_BUFFER_PROCESS 256
 #define SET_PROGRAM_WAIT_MILLISECONDS 500
 
-HelmPlugin::HelmPlugin() {
+HelmPlugin::HelmPlugin() :
+    AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true)) {
   set_state_time_ = 0;
 
   current_program_ = 0;
@@ -200,6 +201,12 @@ void HelmPlugin::parameterChanged(std::string name, mopo::mopo_float value) {
 
 void HelmPlugin::loadPatches() {
   all_patches_ = LoadSave::getAllPatches();
+}
+
+bool HelmPlugin::isBusesLayoutSupported(const BusesLayout &layouts) const {
+  if (layouts.getMainOutputChannelSet() == juce::AudioChannelSet::disabled())
+      return false;
+  return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
 }
 
 void HelmPlugin::getStateInformation(MemoryBlock& dest_data) {

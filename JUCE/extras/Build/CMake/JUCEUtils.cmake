@@ -63,6 +63,10 @@ define_property(TARGET PROPERTY JUCE_VST3_COPY_DIR INHERITED
     BRIEF_DOCS "Install location for VST3 plugins"
     FULL_DOCS "This is where the plugin will be copied if plugin copying is enabled")
 
+define_property(TARGET PROPERTY JUCE_LV2_COPY_DIR INHERITED
+    BRIEF_DOCS "Install location for LV2 plugins"
+    FULL_DOCS "This is where the plugin will be copied if plugin copying is enabled")
+
 define_property(TARGET PROPERTY JUCE_AU_COPY_DIR INHERITED
     BRIEF_DOCS "Install location for AU plugins"
     FULL_DOCS "This is where the plugin will be copied if plugin copying is enabled")
@@ -164,6 +168,7 @@ function(_juce_set_default_properties)
     if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         set_property(GLOBAL PROPERTY JUCE_VST_COPY_DIR  "$ENV{HOME}/Library/Audio/Plug-Ins/VST")
         set_property(GLOBAL PROPERTY JUCE_VST3_COPY_DIR "$ENV{HOME}/Library/Audio/Plug-Ins/VST3")
+        set_property(GLOBAL PROPERTY JUCE_LV2_COPY_DIR  "$ENV{HOME}/Library/Audio/Plug-Ins/LV2")
         set_property(GLOBAL PROPERTY JUCE_AU_COPY_DIR   "$ENV{HOME}/Library/Audio/Plug-Ins/Components")
         set_property(GLOBAL PROPERTY JUCE_AAX_COPY_DIR  "/Library/Application Support/Avid/Audio/Plug-Ins")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -176,10 +181,12 @@ function(_juce_set_default_properties)
         endif()
 
         set_property(GLOBAL PROPERTY JUCE_VST3_COPY_DIR "${prefix}/VST3")
+        set_property(GLOBAL PROPERTY JUCE_VST3_COPY_DIR "${prefix}/LV2")
         set_property(GLOBAL PROPERTY JUCE_AAX_COPY_DIR  "${prefix}/Avid/Audio/Plug-Ins")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         set_property(GLOBAL PROPERTY JUCE_VST_COPY_DIR  "$ENV{HOME}/.vst")
         set_property(GLOBAL PROPERTY JUCE_VST3_COPY_DIR "$ENV{HOME}/.vst3")
+        set_property(GLOBAL PROPERTY JUCE_LV2_COPY_DIR  "$ENV{HOME}/.lv2")
     endif()
 endfunction()
 
@@ -333,7 +340,7 @@ endfunction()
 # ==================================================================================================
 
 function(_juce_get_all_plugin_kinds out)
-    set(${out} AU AUv3 AAX Standalone Unity VST VST3 PARENT_SCOPE)
+    set(${out} AU AUv3 AAX Standalone Unity VST VST3 LV2 PARENT_SCOPE)
 endfunction()
 
 function(_juce_get_platform_plugin_kinds out)
@@ -351,7 +358,7 @@ function(_juce_get_platform_plugin_kinds out)
         list(APPEND result AAX Unity VST)
 
         if(NOT MINGW AND NOT MSYS)
-            list(APPEND result VST3)
+            list(APPEND result LV2 VST3)
         endif()
     endif()
 
@@ -1337,6 +1344,22 @@ function(_juce_set_plugin_target_properties shared_code_target kind)
         endif()
 
         _juce_copy_after_build(${shared_code_target} ${target_name} "${output_path}" JUCE_VST3_COPY_DIR)
+    elseif(kind STREQUAL "LV2")
+        set_target_properties(${target_name} PROPERTIES
+            PREFIX "")
+
+        set_source_files_properties(${JUCE_SOURCE_DIR}/extras/Build/lv2_ttl_generator/lv2_ttl_generator.c PROPERTIES
+            LANGUAGE CXX)
+        add_executable(lv2_ttl_generator ${JUCE_SOURCE_DIR}/extras/Build/lv2_ttl_generator/lv2_ttl_generator.c)
+        target_link_libraries(lv2_ttl_generator ${CMAKE_DL_LIBS})
+
+        add_custom_command(TARGET ${target_name} POST_BUILD
+            COMMAND lv2_ttl_generator "$<TARGET_FILE:${target_name}>"
+            COMMENT "Generating LV2 Turtle manifest files for ${target_name}"
+            WORKING_DIRECTORY "${products_folder}"
+            VERBATIM)
+
+        _juce_copy_after_build(${shared_code_target} ${target_name} "${products_folder}" JUCE_LV2_COPY_DIR)
     elseif(kind STREQUAL "VST")
         set_target_properties(${target_name} PROPERTIES
             BUNDLE_EXTENSION vst
@@ -1449,6 +1472,8 @@ function(_juce_get_plugin_kind_name kind out_var)
         set(${out_var} "VST" PARENT_SCOPE)
     elseif(kind STREQUAL "VST3")
         set(${out_var} "VST3" PARENT_SCOPE)
+    elseif(kind STREQUAL "LV2")
+        set(${out_var} "LV2" PARENT_SCOPE)
     endif()
 endfunction()
 
@@ -1616,7 +1641,14 @@ function(_juce_configure_plugin_targets target)
         JucePlugin_AAXDisableBypass=$<BOOL:$<TARGET_PROPERTY:${target},JUCE_DISABLE_AAX_BYPASS>>
         JucePlugin_AAXDisableMultiMono=$<BOOL:$<TARGET_PROPERTY:${target},JUCE_DISABLE_AAX_MULTI_MONO>>
         JucePlugin_VSTNumMidiInputs=$<TARGET_PROPERTY:${target},JUCE_VST_NUM_MIDI_INS>
-        JucePlugin_VSTNumMidiOutputs=$<TARGET_PROPERTY:${target},JUCE_VST_NUM_MIDI_OUTS>)
+        JucePlugin_VSTNumMidiOutputs=$<TARGET_PROPERTY:${target},JUCE_VST_NUM_MIDI_OUTS>
+        JucePlugin_LV2URI="$<TARGET_PROPERTY:${target},JUCE_LV2_URI>"
+        JucePlugin_WantsLV2FixedBlockSize=$<BOOL:$<TARGET_PROPERTY:${target},JUCE_LV2_WANTS_FIXED_BLOCK_SIZE>>
+        JucePlugin_WantsLV2Latency=$<BOOL:$<TARGET_PROPERTY:${target},JUCE_LV2_WANTS_LATENCY>>
+        JucePlugin_WantsLV2State=$<BOOL:$<TARGET_PROPERTY:${target},JUCE_LV2_WANTS_STATE>>
+        JucePlugin_WantsLV2StateString=$<BOOL:$<TARGET_PROPERTY:${target},JUCE_LV2_WANTS_STATE_STRING>>
+        JucePlugin_WantsLV2Presets=$<BOOL:$<TARGET_PROPERTY:${target},JUCE_LV2_WANTS_PRESETS>>
+        JucePlugin_WantsLV2TimePos=$<BOOL:$<TARGET_PROPERTY:${target},JUCE_LV2_WANTS_TIME_POS>>)
 
     set_target_properties(${target} PROPERTIES
         POSITION_INDEPENDENT_CODE TRUE
@@ -1746,6 +1778,13 @@ function(_juce_set_fallback_properties target)
 
     get_target_property(bundle_id ${target} JUCE_BUNDLE_ID)
     _juce_set_property_if_not_set(${target} AAX_IDENTIFIER ${bundle_id})
+
+    _juce_set_property_if_not_set(${target} LV2_WANTS_FIXED_BLOCK_SIZE FALSE)
+    _juce_set_property_if_not_set(${target} LV2_WANTS_LATENCY TRUE)
+    _juce_set_property_if_not_set(${target} LV2_WANTS_STATE TRUE)
+    _juce_set_property_if_not_set(${target} LV2_WANTS_STATE_STRING FALSE)
+    _juce_set_property_if_not_set(${target} LV2_WANTS_PRESETS TRUE)
+    _juce_set_property_if_not_set(${target} LV2_WANTS_TIME_POS TRUE)
 
     _juce_set_property_if_not_set(${target} VST_NUM_MIDI_INS 16)
     _juce_set_property_if_not_set(${target} VST_NUM_MIDI_OUTS 16)
@@ -1950,10 +1989,19 @@ function(_juce_initialise_target target)
 
         VST_COPY_DIR
         VST3_COPY_DIR
+        LV2_COPY_DIR
         AAX_COPY_DIR
         AU_COPY_DIR
         UNITY_COPY_DIR
-        COPY_PLUGIN_AFTER_BUILD)
+        COPY_PLUGIN_AFTER_BUILD
+
+        LV2_URI
+        LV2_WANTS_FIXED_BLOCK_SIZE
+        LV2_WANTS_LATENCY
+        LV2_WANTS_STATE
+        LV2_WANTS_STATE_STRING
+        LV2_WANTS_PRESETS
+        LV2_WANTS_TIME_POS)
 
     set(multi_value_args
         FORMATS
@@ -1994,6 +2042,7 @@ function(_juce_initialise_target target)
         COMPANY_COPYRIGHT
         VST_COPY_DIR
         VST3_COPY_DIR
+        LV2_COPY_DIR
         AU_COPY_DIR
         AAX_COPY_DIR
         UNITY_COPY_DIR
@@ -2188,7 +2237,7 @@ function(juce_add_pip header)
         list(APPEND extra_target_args MICROPHONE_PERMISSION_ENABLED TRUE)
 
         juce_add_plugin(${JUCE_PIP_NAME}
-            FORMATS AU AUv3 VST3 Unity Standalone ${extra_formats}
+            FORMATS AU AUv3 VST3 LV2 Unity Standalone ${extra_formats}
             ${extra_target_args})
     elseif(pip_kind STREQUAL "Component")
         set(source_main "${JUCE_CMAKE_UTILS_DIR}/PIPComponent.cpp.in")

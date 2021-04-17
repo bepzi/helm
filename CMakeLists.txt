@@ -55,10 +55,10 @@ juce_add_plugin(HelmPlugin
   PRODUCT_NAME "helm"
   COMPANY_NAME "Matt Tytel"
   PLUGIN_MANUFACTURER_CODE "Tyte"
-  FORMATS VST3 AU # LV2
+  FORMATS VST3 AU LV2
 
-  # LV2_URI https://github.com/bepzi/helm
-  )
+  LV2_URI "http://tytel.org/helm"
+  LV2_WANTS_LATENCY FALSE)
 
 juce_generate_juce_header(HelmPlugin)
 
@@ -165,6 +165,13 @@ target_include_directories(HelmPlugin PUBLIC
   src/synthesis)
 
 target_compile_definitions(HelmPlugin PUBLIC
+  # Helm tries to detect at runtime whether it's actually installed,
+  # or whether it's just being queried for its factory presets by
+  # the LV2 .ttl generator. If it's the latter, Helm needs to know
+  # where its factory presets are on the developer's disk. Not ideal
+  # for a number of reasons, but it'll have to do for now.
+  HELM_LV2GEN_FACTORY_PRESET_PATH="${CMAKE_SOURCE_DIR}/patches"
+
   JUCE_DISPLAY_SPLASH_SCREEN=0
   JUCE_VST3_CAN_REPLACE_VST2=0
   JUCE_WEB_BROWSER=0

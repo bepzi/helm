@@ -712,7 +712,7 @@ File LoadSave::getFactoryBankDirectory() {
 
 File LoadSave::getBankDirectory() {
   if (!isInstalled())
-    return File("../../../patches");
+    return File(HELM_LV2GEN_FACTORY_PRESET_PATH);
 
   File patch_dir = File("");
 #ifdef LINUX

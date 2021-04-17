@@ -70,6 +70,9 @@ class HelmPlugin : public SynthBase, public AudioProcessor, public ValueBridge::
 
     void loadPatches();
 
+  protected:
+    bool isBusesLayoutSupported(const BusesLayout &layouts) const override;
+
   private:
     uint32 set_state_time_;
 
